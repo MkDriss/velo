@@ -22,7 +22,8 @@ namespace Proxy
 
             if (ItemValue == null || !cache.Contains(CacheItemName))
             {
-                cache.Add(CacheItemName, Activator.CreateInstance<T>(), dt_default); //
+                var instance = Activator.CreateInstance(typeof(T), CacheItemName);
+                cache.Add(CacheItemName, instance, dt_default);
             }
 
             return (T)cache.Get(CacheItemName);
@@ -37,7 +38,8 @@ namespace Proxy
             {
 
                 DateTimeOffset dt_new = dt_default.AddSeconds(dt_seconds);
-                cache.Add(CacheItemName, Activator.CreateInstance<T>(), dt_new);
+                var instance = Activator.CreateInstance(typeof(T), CacheItemName);
+                cache.Add(CacheItemName, instance, dt_default);
             }
 
             return (T)cache.Get(CacheItemName);
@@ -49,7 +51,8 @@ namespace Proxy
 
             if (ItemValue == null || !cache.Contains(CacheItemName))
             {
-                cache.Add(CacheItemName, Activator.CreateInstance<T>(), dt);
+                var instance = Activator.CreateInstance(typeof(T), CacheItemName);
+                cache.Add(CacheItemName, instance, dt_default);
             }
 
             return (T)cache.Get(CacheItemName);

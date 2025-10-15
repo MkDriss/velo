@@ -2,40 +2,44 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Net.Http;
 using System.Threading.Tasks;
+using Proxy;
 
 namespace Proxy
 {
     internal class Station
     {
-        private int number;
 
-        private string contract_name;
+        public int number;
 
-        private string name;
+        public string contract_name;
 
-        private string address;
+        public string name;
 
-        private Position position;
+   /*     public string address;
 
-        private bool banking;
+        public Position position;
 
-        private bool bonus;
+        public bool banking;
 
-        private int bike_stands;
+        public bool bonus;
 
-        private int available_bike_stands;
+        public int bike_stands;
 
+        public int available_bike_stands;
 
-        private int available_bike;
+        public int available_bike;
 
+        public string status;*/
 
-        private string status;
+        public Station(int number, string contract_name, string name) {
 
-        public Station()
-        {
-            position = new Position(1, 2);
+            this.number = number;
+            this.contract_name = contract_name;
+            this.name = name;
         }
-
     }
 }
+
+
