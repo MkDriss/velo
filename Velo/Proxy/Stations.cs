@@ -44,9 +44,14 @@ namespace Proxy
                             int number = element.GetProperty("number").GetInt32();
                             string contractName = element.GetProperty("contract_name").GetString();
                             string stationName = element.GetProperty("name").GetString();
+                            double longitude = element.GetProperty("position").GetProperty("lng").GetDouble();
+                            double latitude= element.GetProperty("position").GetProperty("lat").GetDouble();
 
                             // Création d’un objet Station minimal
-                            var station = new Station(number, contractName, stationName);
+
+                            Position position = new Position(longitude, latitude);
+
+                            var station = new Station(number, contractName, stationName, position);
 
                             // Ajout à la liste
                             stations.Add(station);

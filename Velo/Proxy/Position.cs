@@ -1,20 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Proxy
 {
+    [DataContract]
     internal class Position
     {
-        public int x;
-        public int y;
+        [DataMember] public double longitude;
+        [DataMember] public double latitude;
 
-        public Position(int x, int y)
+        public Position(double longitude, double latitude)
         {
-            this.x = x;
-            this.y = y;
+            this.longitude = longitude;
+            this.latitude = latitude;
         }
+
+        public Position() { }
     }
 }

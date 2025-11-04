@@ -20,27 +20,14 @@ namespace Proxy
 
         [DataMember] public string name;
 
-   /*     public string address;
+        [DataMember] public Position position;
 
-        public Position position;
 
-        public bool banking;
-
-        public bool bonus;
-
-        public int bike_stands;
-
-        public int available_bike_stands;
-
-        public int available_bike;
-
-        public string status;*/
-
-        public Station(int number, string contract_name, string name) {
-
+        public Station(int number, string contract_name, string name, Position position) {
             this.number = number;
             this.contract_name = contract_name;
             this.name = name;
+            this.position = position;
         }
 
         public Station() { }
