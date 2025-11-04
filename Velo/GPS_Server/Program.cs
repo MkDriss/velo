@@ -9,7 +9,7 @@ namespace GPS_Server
     {
         static void Main(string[] args)
         {
-            var baseAddress = new Uri("http://localhost:8733/GPSServer/");
+            var baseAddress = new Uri("http://localhost:8701/GPSServer/");
             using (var host = new WebServiceHost(typeof(GPS), baseAddress))
             {
                 var endpoint = host.AddServiceEndpoint(typeof(IGPS), new WebHttpBinding(), "");
