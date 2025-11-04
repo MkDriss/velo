@@ -9,8 +9,8 @@ namespace Proxy
     class ProxyCache : IProxyCache
     {
 
-        private static GenericProxyCache stationsCache = new GenericProxyCache();
-        private static GenericProxyCache contractCache = new GenericProxyCache();
+        private static GenericProxyCache stationsCache = new GenericProxyCache("stationsCache");
+        private static GenericProxyCache contractCache = new GenericProxyCache("contractCache");
 
 
         public Stations GetStations(string contract)

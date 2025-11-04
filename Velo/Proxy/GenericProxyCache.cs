@@ -12,9 +12,13 @@ namespace Proxy
     public class GenericProxyCache : IGenericProxyCache
     {
 
-        private ObjectCache cache = MemoryCache.Default;
+        private ObjectCache cache;
         private DateTimeOffset dt_default = ObjectCache.InfiniteAbsoluteExpiration;
 
+        public GenericProxyCache(string cacheName)
+        {
+            cache = new MemoryCache(cacheName);
+        }
 
         public T Get<T>(string CacheItemName)
         {

@@ -18,6 +18,8 @@ namespace Proxy
         }
 
 
+        public Contract() { }
+
 
         async Task requestContract(string cityName)
         {
