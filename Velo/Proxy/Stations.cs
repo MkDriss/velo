@@ -2,21 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Proxy
 {
+    [DataContract]
     internal class Stations
     {
-        private string name;
-        private List<Station> stations;
+
+        [DataMember] public string name;
+        [DataMember] public List<Station> stations;
         public Stations(string contract)
         {
             this.name = contract;
             stations = new List<Station>();
-            requestStation(contract);
+            requestStation(contract).Wait();
         }
 
         async Task requestStation(string contract)

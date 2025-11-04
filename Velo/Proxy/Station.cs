@@ -5,17 +5,20 @@ using System.Text;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Proxy;
+using System.Runtime.Serialization;
 
 namespace Proxy
 {
+
+    [DataContract]
     internal class Station
     {
 
-        public int number;
+        [DataMember] public int number;
 
-        public string contract_name;
+        [DataMember] public string contract_name;
 
-        public string name;
+        [DataMember] public string name;
 
    /*     public string address;
 
@@ -39,6 +42,8 @@ namespace Proxy
             this.contract_name = contract_name;
             this.name = name;
         }
+
+        public Station() { }
     }
 }
 

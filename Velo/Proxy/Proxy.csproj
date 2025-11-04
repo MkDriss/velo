@@ -131,10 +131,12 @@
     <Compile Include="ApiKeys.cs" />
     <Compile Include="IGenericProxyCache.cs" />
     <Compile Include="Contract.cs" />
+    <Compile Include="IProxyCache.cs" />
     <Compile Include="Position.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GenericProxyCache.cs" />
+    <Compile Include="ProxyCache.cs" />
     <Compile Include="Station.cs" />
     <Compile Include="Stations.cs" />
   </ItemGroup>
