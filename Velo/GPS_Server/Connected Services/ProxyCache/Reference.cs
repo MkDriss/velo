@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace GPS_Server.ServiceReference1 {
+namespace GPS_Server.ProxyCache {
     using System.Runtime.Serialization;
     using System;
     
@@ -26,7 +26,7 @@ namespace GPS_Server.ServiceReference1 {
         private string nameField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private GPS_Server.ServiceReference1.Station[] stationsField;
+        private GPS_Server.ProxyCache.Station[] stationsField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -52,7 +52,7 @@ namespace GPS_Server.ServiceReference1 {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public GPS_Server.ServiceReference1.Station[] stations {
+        public GPS_Server.ProxyCache.Station[] stations {
             get {
                 return this.stationsField;
             }
@@ -84,6 +84,12 @@ namespace GPS_Server.ServiceReference1 {
         private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int available_bikesField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int available_bikes_standsField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
         private string contract_nameField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
@@ -93,7 +99,7 @@ namespace GPS_Server.ServiceReference1 {
         private int numberField;
         
         [System.Runtime.Serialization.OptionalFieldAttribute()]
-        private GPS_Server.ServiceReference1.Position positionField;
+        private GPS_Server.ProxyCache.Position positionField;
         
         [global::System.ComponentModel.BrowsableAttribute(false)]
         public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
@@ -102,6 +108,32 @@ namespace GPS_Server.ServiceReference1 {
             }
             set {
                 this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int available_bikes {
+            get {
+                return this.available_bikesField;
+            }
+            set {
+                if ((this.available_bikesField.Equals(value) != true)) {
+                    this.available_bikesField = value;
+                    this.RaisePropertyChanged("available_bikes");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int available_bikes_stands {
+            get {
+                return this.available_bikes_standsField;
+            }
+            set {
+                if ((this.available_bikes_standsField.Equals(value) != true)) {
+                    this.available_bikes_standsField = value;
+                    this.RaisePropertyChanged("available_bikes_stands");
+                }
             }
         }
         
@@ -145,7 +177,7 @@ namespace GPS_Server.ServiceReference1 {
         }
         
         [System.Runtime.Serialization.DataMemberAttribute()]
-        public GPS_Server.ServiceReference1.Position position {
+        public GPS_Server.ProxyCache.Position position {
             get {
                 return this.positionField;
             }
@@ -229,14 +261,14 @@ namespace GPS_Server.ServiceReference1 {
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="ServiceReference1.IProxyCache")]
+    [System.ServiceModel.ServiceContractAttribute(ConfigurationName="ProxyCache.IProxyCache")]
     public interface IProxyCache {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IProxyCache/GetStations", ReplyAction="http://tempuri.org/IProxyCache/GetStationsResponse")]
-        GPS_Server.ServiceReference1.Stations GetStations(string contractName);
+        GPS_Server.ProxyCache.Stations GetStations(string contractName);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IProxyCache/GetStations", ReplyAction="http://tempuri.org/IProxyCache/GetStationsResponse")]
-        System.Threading.Tasks.Task<GPS_Server.ServiceReference1.Stations> GetStationsAsync(string contractName);
+        System.Threading.Tasks.Task<GPS_Server.ProxyCache.Stations> GetStationsAsync(string contractName);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IProxyCache/GetContract", ReplyAction="http://tempuri.org/IProxyCache/GetContractResponse")]
         string GetContract(string cityName);
@@ -246,12 +278,12 @@ namespace GPS_Server.ServiceReference1 {
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface IProxyCacheChannel : GPS_Server.ServiceReference1.IProxyCache, System.ServiceModel.IClientChannel {
+    public interface IProxyCacheChannel : GPS_Server.ProxyCache.IProxyCache, System.ServiceModel.IClientChannel {
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public partial class ProxyCacheClient : System.ServiceModel.ClientBase<GPS_Server.ServiceReference1.IProxyCache>, GPS_Server.ServiceReference1.IProxyCache {
+    public partial class ProxyCacheClient : System.ServiceModel.ClientBase<GPS_Server.ProxyCache.IProxyCache>, GPS_Server.ProxyCache.IProxyCache {
         
         public ProxyCacheClient() {
         }
@@ -272,11 +304,11 @@ namespace GPS_Server.ServiceReference1 {
                 base(binding, remoteAddress) {
         }
         
-        public GPS_Server.ServiceReference1.Stations GetStations(string contractName) {
+        public GPS_Server.ProxyCache.Stations GetStations(string contractName) {
             return base.Channel.GetStations(contractName);
         }
         
-        public System.Threading.Tasks.Task<GPS_Server.ServiceReference1.Stations> GetStationsAsync(string contractName) {
+        public System.Threading.Tasks.Task<GPS_Server.ProxyCache.Stations> GetStationsAsync(string contractName) {
             return base.Channel.GetStationsAsync(contractName);
         }
         

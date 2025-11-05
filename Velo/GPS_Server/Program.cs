@@ -15,6 +15,7 @@ namespace GPS_Server
                 var endpoint = host.AddServiceEndpoint(typeof(IGPS), new WebHttpBinding(), "");
                 endpoint.Behaviors.Add(new WebHttpBehavior());
 
+
                 host.Open();
                 Console.WriteLine("GPSServer running at " + baseAddress);
                 Console.WriteLine("Press Enter to stop...");

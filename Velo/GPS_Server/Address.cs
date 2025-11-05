@@ -1,4 +1,5 @@
-﻿using System;
+﻿using GPS_Server.ProxyCache;
+using System;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
@@ -12,8 +13,7 @@ namespace GPS_Server
         public string City;        // Exemple : Marseille
         public int PostalCode;    // Exemple : 13000
         public string StreetAddress; // Exemple : 2 rue des lilas
-        public double Latitude;
-        public double Longitude;
+        public Position position;
 
         public Address(string addressInput)
         {
@@ -36,11 +36,10 @@ namespace GPS_Server
             Console.WriteLine($"Code postal : {PostalCode}");
             Console.WriteLine($"Ville : {City}");
 
-            // Appel asynchrone bloquant ici pour simplifier
             Task.Run(async () => await FetchCoordinates(addressInput)).Wait();
 
-            Console.WriteLine($"Latitude : {Latitude}");
-            Console.WriteLine($"Longitude : {Longitude}\n");
+            Console.WriteLine($"Latitude : {position.latitude}");
+            Console.WriteLine($"Longitude : {position.longitude}\n");
         }
 
         private async Task FetchCoordinates(string address)
@@ -69,8 +68,13 @@ namespace GPS_Server
                     }
 
                     var first = results[0];
-                    Latitude = double.Parse(first.GetProperty("lat").GetString(), CultureInfo.InvariantCulture); // ON le fait car en fr on a des , et en EN des .
-                    Longitude = double.Parse(first.GetProperty("lon").GetString(), CultureInfo.InvariantCulture);
+                    double Latitude = double.Parse(first.GetProperty("lat").GetString(), CultureInfo.InvariantCulture); // ON le fait car en fr on a des , et en EN des .
+                    double Longitude = double.Parse(first.GetProperty("lon").GetString(), CultureInfo.InvariantCulture);
+                    this.position = new Position
+                    {
+                        longitude = Longitude,
+                        latitude = Latitude
+                    };
                 }
 
                 catch (Exception ex)

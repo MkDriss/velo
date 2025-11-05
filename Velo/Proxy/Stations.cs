@@ -46,12 +46,14 @@ namespace Proxy
                             string stationName = element.GetProperty("name").GetString();
                             double longitude = element.GetProperty("position").GetProperty("lng").GetDouble();
                             double latitude= element.GetProperty("position").GetProperty("lat").GetDouble();
+                            int available_bikes = element.GetProperty("available_bikes").GetInt32();
+                            int available_bikes_stands = element.GetProperty("available_bike_stands").GetInt32();
 
                             // Création d’un objet Station minimal
 
                             Position position = new Position(longitude, latitude);
 
-                            var station = new Station(number, contractName, stationName, position);
+                            var station = new Station(number, contractName, stationName, position, available_bikes, available_bikes_stands);
 
                             // Ajout à la liste
                             stations.Add(station);

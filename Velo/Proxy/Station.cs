@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Proxy;
 using System.Runtime.Serialization;
 
 namespace Proxy
@@ -22,12 +21,18 @@ namespace Proxy
 
         [DataMember] public Position position;
 
+        [DataMember] public int available_bikes;
 
-        public Station(int number, string contract_name, string name, Position position) {
+        [DataMember] public int available_bikes_stands;
+
+
+        public Station(int number, string contract_name, string name, Position position, int available_bikes, int available_bikes_stands) {
             this.number = number;
             this.contract_name = contract_name;
             this.name = name;
             this.position = position;
+            this.available_bikes = available_bikes;
+            this.available_bikes_stands = available_bikes_stands;
         }
 
         public Station() { }

@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.ServiceModel;
 using System.ServiceModel.Web;
 using System.Text;
+using System.Text.Json;
 
 namespace GPS_Server
 {
@@ -15,7 +16,7 @@ namespace GPS_Server
         [WebGet(
             UriTemplate = "/getItinerary?start={address1}&end={address2}",
             ResponseFormat = WebMessageFormat.Json)]
-        double GetItinerary(string address1, string address2);
+        string GetItinerary(string address1, string address2);
 
     }
 }
