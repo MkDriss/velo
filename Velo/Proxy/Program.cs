@@ -11,7 +11,7 @@ namespace Proxy
 
     {
 
-        public static void main()
+        public static void Main()
         {
 
             // Adresse de base (doit correspondre à App.config)
