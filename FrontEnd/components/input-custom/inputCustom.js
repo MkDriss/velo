@@ -1,5 +1,3 @@
-
-
 class InputCustom extends HTMLElement {
 
     constructor() {
@@ -7,52 +5,76 @@ class InputCustom extends HTMLElement {
         this.input = "";
         this.debounceTimer = null;
         this.attachShadow({ mode: "open" });
-
     }
 
     async connectedCallback() {
-        let response = (await fetch("components/input-custom/input-template.html"));
-        let content = await response.text();
-
-        let templateContent = new DOMParser().parseFromString(content, "text/html").querySelector("template").content;
-
+        const response = await fetch("./components/input-custom/input-template.html");
+        const content = await response.text();
+        const templateContent = new DOMParser()
+            .parseFromString(content, "text/html")
+            .querySelector("template").content;
         this.shadowRoot.appendChild(templateContent.cloneNode(true));
 
         this.inputElement = this.shadowRoot.querySelector("input");
         this.listElement = this.shadowRoot.querySelector("ul");
 
-        this.inputElement.addEventListener("keyup", (e) => {
-            this.input = e.target.value;
-            if (this.input === "") return;
+        this.inputElement.addEventListener("input", (e) => {
+            this.input = e.target.value.trim();
+            if (this.input === "") {
+                this.clearList();
+                return;
+            }
             this.debounce();
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!this.contains(e.target)) this.clearList();
         });
     }
 
     debounce() {
         clearTimeout(this.debounceTimer);
-        
         this.debounceTimer = setTimeout(() => {
-            let data = fetch(`https://api-adresse.data.gouv.fr/search/?q=${this.input}&limit=5`);
-            data
-                .then((res) => res.json())
-                .then((data) => {
-                    const values = data.features;
-                    console.log(values);
-
-                    this.listElement.innerHTML = "";
-                    values.forEach(element => {
-                        let li = document.createElement("li");
-                        li.textContent = element.properties.label;
-                        this.listElement.appendChild(li);
-                    });
-                })
+            this.fetchSuggestions();
         }, 500);
     }
 
-    static get observedAttributes() { return ['input']; }
+    async fetchSuggestions() {
+        try {
+            const res = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(this.input)}&limit=5`);
+            const data = await res.json();
+            const values = data.features;
+            this.renderList(values);
+        } catch (err) {
+            console.error(err);
+            this.clearList();
+        }
+    }
 
-    //    attributeChangedCallback(property, newValue) { this[property] = newValue; console.log(this.input) }
+    renderList(values) {
+        this.listElement.innerHTML = "";
+
+        values.forEach((element) => {
+            const li = document.createElement("li");
+            li.textContent = element.properties.label;
+
+            li.addEventListener("click", () => {
+                this.inputElement.value = element.properties.label;
+                this.input = element.properties.label;
+                this.clearList();
+
+                this.dispatchEvent(new CustomEvent("selection", { detail: element, bubbles: true }));
+            });
+
+            this.listElement.appendChild(li);
+        });
+    }
+
+    clearList() {
+        this.listElement.innerHTML = "";
+    }
+
+    static get observedAttributes() { return ['input']; }
 }
 
 customElements.define("input-custom", InputCustom);
-

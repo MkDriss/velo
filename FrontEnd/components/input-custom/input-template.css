@@ -1,0 +1,80 @@
+/* Container autour de l’input et la liste */
+div.content {
+  position: relative; /* pour que la liste se positionne correctement */
+  font-family: Arial, sans-serif;
+  margin: 10px 0;
+}
+
+/* Label du slot */
+div.content span {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+/* Style de l’input */
+div.content input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+div.content input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0,123,255,0.5);
+}
+
+/* Liste des suggestions */
+ul.selections {
+  list-style: none;
+  padding: 0;
+  margin: 5px 0 0 0;
+  max-height: 200px;    
+  overflow-y: auto;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fff;
+  position: absolute;
+  width: 100%;
+  z-index: 1000;
+}
+
+ul.selections li {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  transition: background 0.2s, color 0.2s;
+}
+
+ul.selections li:last-child {
+  border-bottom: none;
+}
+
+ul.selections li:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+ul.selections::-webkit-scrollbar {
+  width: 8px;
+}
+
+ul.selections::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 8px;
+}
+
+ul.selections::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 8px;
+}
+
+ul.selections::-webkit-scrollbar-thumb:hover {
+  background: #999;
+}

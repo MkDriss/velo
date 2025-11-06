@@ -6,13 +6,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+
     <!-- Performances -->
     <script src="components/footer-custom/footerCustom.js" defer></script>
     <script src="components/input-custom/inputCustom.js" defer></script>
-    <script src="components/GeoMap/geomap.js" defer></script>
+    <script src="./scripts/geomap.js" defer></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 
-    <title>Harmonisation</title>
+
+    <title>Velo</title>
 </head>
 
 <body>
@@ -55,22 +61,29 @@
             <li>submenu 3</li>
         </ul>
     </aside>
+
     <main class="main">
         <h1 class="title">Titre 1</h1>
-        <div class="research">
-            <input-custom>
-                <span slot="name">Departure</span>
-            </input-custom>
-            <input-custom>
-                <span slot="name">Arrival</span>
-            </input-custom>
+        <div class="research-container">
+            <section class="input-section">
+                <input-custom>
+                    <span slot="name">Departure</span>
+                </input-custom>
+                <input-custom>
+                    <span slot="name">Arrival</span>
+                </input-custom>
+                <button class="research-btn" onclick="findPath()">Research</button>
+            </section>
         </div>
-        <geo-map></geo-map>
+
+        <div id="map"></div>
+
+
     </main>
 
     <footer-custom>
         <span slot="name">Driss Meskini</span>
-        <span slot="ecole">Polytech Marseille</span>
+        <span slot="ecole">Polytech Nice Sophia</span>
     </footer-custom>
 </body>
 
