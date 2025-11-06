@@ -34,7 +34,7 @@ namespace GPS_Server
             string endContract = JCDecauxUtils.getContract(end.City);
 
             // Si les deux villes sont dans le même contract
-            if (startContract == endContract)
+            if (startContract == endContract && startContract != null)
             {
                 Console.WriteLine("[GPS] - Meme contract");
                 Stations stations = JCDecauxUtils.getStations(startContract);

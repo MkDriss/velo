@@ -32,89 +32,110 @@ namespace GPS_Server
 
         public async Task<JsonDocument> computeComplexItinerary(List<Station> allStations, Position startPos, Position endPos)
         {
+            Itinerary itinerary = new Itinerary();
+            await recursiveItinerary(startPos, endPos, itinerary, allStations);
 
-            Position currentPosition = startPos;
-            List<JsonDocument> finalPedestrian = new List<JsonDocument>();
-            List<JsonDocument> finalBiking = new List<JsonDocument>();
+            return CreateBestRouteJson(itinerary);          
+        }
 
-            while(currentPosition != endPos) {
-
-                var stationsWithDistance = new List<(Station station, double distance)>();
-
-                foreach (Station station in allStations)
-                {
-                    double startToStation = GeoUtils.HaversineDistance(currentPosition, station.position);
-                    double stationToEnd = GeoUtils.HaversineDistance(station.position, endPos);
-                    double totalDistance = startToStation + stationToEnd;
-
-                    stationsWithDistance.Add((station, totalDistance));
-                }
-
-                var closestStations = stationsWithDistance
-                   .OrderBy(sd => sd.distance)
-                   .Take(2) // Représente le nombre de station qu'on cherche autour de nous ( attention l'augmenter risque ban API ORS )
-                   .Select(sd => sd.station)
-                   .ToList();
-
-
-                List<JsonDocument> pedestrian = null;
-                List<JsonDocument> bike = null;
-                double bestItineraryTime = double.MaxValue;
-                Station endItineraryStation = null;
-
-                foreach (Station station in closestStations)
-                {
-                    Stations currentCityStations = JCDecauxUtils.getStations(station.contract_name);
-
-                    Station endCurrentStation = null;
-                    double bestDistance = double.MaxValue;
-
-                    foreach (Station endStation in currentCityStations.stations)
-                    {
-                        double distance = GeoUtils.HaversineDistance(endStation.position, endPos);
-
-                        if(distance < bestDistance)
-                        {
-                            endCurrentStation = endStation;
-                            bestDistance = distance;
-                        }
-                    }
-
-                    JsonDocument walkRoute1 = await getRoute(currentPosition, station.position, "foot-walking");
-                    JsonDocument bikeRoute = await getRoute(station.position, endCurrentStation.position, "cycling-regular");
-                    JsonDocument walkRoute2 = await getRoute(endCurrentStation.position, endPos, "foot-walking");
-
-                    double routeDuration = getDuration(walkRoute1) + getDuration(bikeRoute) + getDuration(walkRoute2);
-                    if (routeDuration < bestItineraryTime)
-                    {
-                        pedestrian.Add(walkRoute1);
-                        pedestrian.Add(walkRoute2);
-                        bike.Add(bikeRoute);
-                        endItineraryStation = endCurrentStation;
-                        bestItineraryTime = routeDuration;
-                    }
-
-                }
-
-                JsonDocument walkRoute = await getRoute(currentPosition, endPos, "foot-walking");
-
-
-                if(getDuration(walkRoute) > bestItineraryTime)
-                {
-                    currentPosition = endItineraryStation.position;
-                    finalBiking.Concat(bike);
-                    finalPedestrian.Concat(pedestrian);
-                }
-                else
-                {
-                    currentPosition = endPos;
-                    finalPedestrian.Add(walkRoute);
-                }
-                
+        private async Task<Itinerary> recursiveItinerary(Position startPosition, Position endPosition, Itinerary itinerary, List<Station> allStations)
+        {
+            if(startPosition == endPosition)
+            {
+                return new Itinerary();
             }
 
-            return CreateBestRouteJson(finalPedestrian, finalBiking);
+            JsonDocument walkGlobalRoute = await getRoute(startPosition, endPosition, "foot-walking");
+            Itinerary walkItinerary = new Itinerary(new List<JsonDocument>{ walkGlobalRoute });
+
+            List<Station> closestStations = findHaversineClosestStation(startPosition, endPosition, allStations, 2);
+
+            Station bestEndStation = null;
+            Itinerary bestItinerary = null;
+            double durationTime = double.MaxValue;
+
+            foreach(Station closeStartStation in closestStations)
+            {
+                Stations sameContractStation = JCDecauxUtils.getStations(closeStartStation.contract_name);
+
+                Station endCurrentStation = null;
+                double bestDistance = double.MaxValue;
+                
+                foreach (Station closestEndStation in sameContractStation.stations)
+                {
+                    double distance = GeoUtils.HaversineDistance(endCurrentStation.position, endPosition);
+
+                    if (distance < bestDistance)
+                    {
+                        endCurrentStation = closestEndStation;
+                        bestDistance = distance;
+                    }
+                }
+
+                JsonDocument walkRoute1 = await getRoute(startPosition, closeStartStation.position, "foot-walking");
+                JsonDocument bikeRoute = await getRoute(closeStartStation.position, endCurrentStation.position, "cycling-regular");
+                JsonDocument walkRoute2 = await getRoute(endCurrentStation.position, endPosition, "foot-walking");
+
+                double routeDuration = getDuration(walkRoute1) + getDuration(bikeRoute) + getDuration(walkRoute2);
+
+                if(durationTime > routeDuration)
+                {
+                    durationTime = routeDuration;
+                    bestEndStation = endCurrentStation;
+                    bestItinerary = new Itinerary(new List<JsonDocument> { walkRoute1, walkRoute2 }, new List<JsonDocument> { bikeRoute } );
+   
+                }
+            }
+
+
+            Console.WriteLine(itinerary.pedestrianPath.Count);
+
+
+            if (bestItinerary.getDuration() < walkItinerary.getDuration())
+            {
+                Console.WriteLine("1");
+                itinerary.add(bestItinerary);
+                Console.WriteLine("2");
+
+                return await recursiveItinerary(bestEndStation.position, endPosition, itinerary , allStations);
+
+            }
+            else
+            {
+                Console.WriteLine("4");
+
+                itinerary.add(walkItinerary);
+                Console.WriteLine("3");
+
+                return await recursiveItinerary(endPosition, endPosition, itinerary, allStations);
+            }
         }
+
+
+        private List<Station> findHaversineClosestStation(Position startPos, Position endPos, List<Station> allStations, int precision)
+        {
+
+            var stationsWithDistance = new List<(Station station, double distance)>();
+
+            foreach (Station s in allStations)
+            {
+
+                double startToStation = GeoUtils.HaversineDistance(startPos, s.position);
+                double stationToEnd = GeoUtils.HaversineDistance(s.position, endPos);
+                double totalDistance = startToStation + stationToEnd;
+
+                stationsWithDistance.Add((s, totalDistance));
+            }
+
+            var closestStations = stationsWithDistance
+               .OrderBy(sd => sd.distance)
+               .Take(precision) // Représente le nombre de station qu'on cherche autour de nous ( attention l'augmenter risque ban API ORS )
+               .Select(sd => sd.station)
+               .ToList();
+
+            return closestStations;
+        }
+
 
         public async Task<JsonDocument> computeBestItinerary(List<Station> startStations, List<Station> endStations, Position startPos, Position endPos)
         {
@@ -154,11 +175,13 @@ namespace GPS_Server
             }
 
 
-            return CreateBestRouteJson(pedestrian, bike);
+            Itinerary itinerary = new Itinerary(pedestrian, bike);
+
+            return CreateBestRouteJson(itinerary);
 
         }
 
-        public JsonDocument CreateBestRouteJson(List<JsonDocument> pedestrian, List<JsonDocument> bike)
+        public JsonDocument CreateBestRouteJson(Itinerary itinerary)
         {
             List<JsonElement> ToElements(List<JsonDocument> docs)
             {
@@ -172,8 +195,8 @@ namespace GPS_Server
 
             var bestRouteObj = new
             {
-                pedestrianPath = ToElements(pedestrian),
-                bikePath = ToElements(bike)
+                pedestrianPath = ToElements(itinerary.pedestrianPath),
+                bikePath = ToElements(itinerary.bikingPath)
             };
 
 

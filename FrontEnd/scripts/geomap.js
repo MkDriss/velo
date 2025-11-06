@@ -54,7 +54,9 @@ async function findPath() {
 
         const pedestrian = parsed.pedestrianPath;
         const bike = parsed.bikePath;
+        
 
+        console.log(geojson);
 
         // Affichage des chemins
 
