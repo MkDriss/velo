@@ -39,8 +39,8 @@ namespace GPS_Server
                 Console.WriteLine("[GPS] - Start Finding ClosestStations");
                 List<Station> startClosestStation = findClosestStations(stations, start.position, precisionStation, true);
                 List<Station> endClosestStation = findClosestStations(stations, end.position, precisionStation, false);
-                Console.WriteLine("[GPS] - End Finding ClosestStations");
 
+                Console.WriteLine("[GPS] - End Finding ClosestStations");
 
                 ORSUtils ORS = new ORSUtils();
 
