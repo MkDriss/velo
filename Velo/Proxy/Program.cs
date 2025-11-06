@@ -15,17 +15,17 @@ namespace Proxy
         {
 
             // Adresse de base (doit correspondre à App.config)
-            Uri baseAddress = new Uri("http://localhost:8733/proxyCache/");
+            // Uri baseAddress = new Uri("http://localhost:8733/proxyCache/");
 
             // Création de l'hôte 
-            using (ServiceHost host = new ServiceHost(typeof(ProxyCache), baseAddress))
+            using (ServiceHost host = new ServiceHost(typeof(ProxyCache)))
             {
                 try
                 {
                     host.Open(); // Démarre le service
 
                     Console.WriteLine("Service SOAP ProxyCache démarré !");
-                    Console.WriteLine("Adresse : " + baseAddress);
+                    //Console.WriteLine("Adresse : " + baseAddress);
                     Console.WriteLine("Appuyez sur une touche pour arrêter le service...");
                     Console.ReadKey();
 
