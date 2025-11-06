@@ -34,6 +34,20 @@ namespace Proxy
 
         }
 
+        public T GetAll<T>(string CacheItemName)
+        {
+            var ItemValue = cache.Get(CacheItemName);
+
+            if (ItemValue == null || !cache.Contains(CacheItemName))
+            {
+                var instance = Activator.CreateInstance(typeof(T));
+                cache.Add(CacheItemName, instance, dt_default);
+            }
+
+            return (T)cache.Get(CacheItemName);
+
+        }
+
         public T Get<T>(string CacheItemName, double dt_seconds)
         {
             var ItemValue = cache.Get(CacheItemName);

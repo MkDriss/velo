@@ -14,7 +14,7 @@ namespace GPS_Server
     class ORSUtils
     {
         private readonly HttpClient _httpClient;
-        private const double Epsilon = 1e-6;
+        private const double Epsilon = 1e-5;
         
         public ORSUtils()
         {
@@ -32,20 +32,26 @@ namespace GPS_Server
             }
         }
 
+        private bool PositionsEqual(Position a, Position b, double eps = Epsilon)
+        {
+            if (a == null || b == null) return false;
+            return Math.Abs(a.latitude - b.latitude) < eps &&
+                   Math.Abs(a.longitude - b.longitude) < eps;
+        }
         public async Task<JsonDocument> computeComplexItinerary(List<Station> allStations, Position startPos, Position endPos)
         {
             Itinerary itinerary = new Itinerary();
             await recursiveItinerary(startPos, endPos, itinerary, allStations);
-
+            Console.WriteLine($"TEST : {itinerary.pedestrianPath.Count}");
             return CreateBestRouteJson(itinerary);          
         }
 
-        private async Task<Itinerary> recursiveItinerary(Position startPosition, Position endPosition, Itinerary itinerary, List<Station> allStations)
+        private async Task recursiveItinerary(Position startPosition, Position endPosition, Itinerary itinerary, List<Station> allStations)
         {
 
-            if(((startPosition.latitude - endPosition.latitude) < Epsilon) && ((startPosition.longitude - endPosition.longitude) < Epsilon))
+            if(PositionsEqual(startPosition, endPosition))
             {
-                return new Itinerary();
+                return;
             }
 
             JsonDocument walkGlobalRoute = await getRoute(startPosition, endPosition, "foot-walking");
@@ -59,7 +65,6 @@ namespace GPS_Server
 
             foreach(Station closeStartStation in closestStations)
             {
-                Console.WriteLine("Test");
                 Stations sameContractStation = JCDecauxUtils.getStations(closeStartStation.contract_name);
 
                 Station endCurrentStation = null;
@@ -70,12 +75,13 @@ namespace GPS_Server
                     if(endCurrentStation == null)
                     {
                         endCurrentStation = closestEndStation;
+                        bestDistance = GeoUtils.HaversineDistance(endCurrentStation.position, endPosition);
                         continue;
                     }
 
-                    double distance = GeoUtils.HaversineDistance(endCurrentStation.position, endPosition);
+                    double distance = GeoUtils.HaversineDistance(closestEndStation.position, endPosition);
 
-                    if (distance < bestDistance)
+                    if (distance < bestDistance)    
                     {
                         endCurrentStation = closestEndStation;
                         bestDistance = distance;
@@ -92,39 +98,39 @@ namespace GPS_Server
                 {
                     durationTime = routeDuration;
                     bestEndStation = endCurrentStation;
-                    bestItinerary = new Itinerary(new List<JsonDocument> { walkRoute1, walkRoute2 }, new List<JsonDocument> { bikeRoute } );
+                    bestItinerary = new Itinerary(new List<JsonDocument> { walkRoute1 }, new List<JsonDocument> { bikeRoute } );
    
                 }
             }
 
 
-            Console.WriteLine(itinerary.pedestrianPath.Count);
 
             if(bestItinerary == null)
             {
-
                 itinerary.add(walkItinerary);
-                return await recursiveItinerary(endPosition, endPosition, itinerary, allStations);
+                //await recursiveItinerary(endPosition, endPosition, itinerary, allStations);
+                return;
             }
 
 
             if (bestItinerary.getDuration() < walkItinerary.getDuration())
             {
-                Console.WriteLine("1");
                 itinerary.add(bestItinerary);
-                Console.WriteLine("2");
 
-                return await recursiveItinerary(bestEndStation.position, endPosition, itinerary , allStations);
+                allStations.RemoveAll(s => s.contract_name == bestEndStation.contract_name);
 
+                await recursiveItinerary(bestEndStation.position, endPosition, itinerary , allStations);
+                return;
             }
+
             else
             {
-                Console.WriteLine("4");
-
                 itinerary.add(walkItinerary);
-                Console.WriteLine("3");
 
-                return await recursiveItinerary(endPosition, endPosition, itinerary, allStations);
+                allStations.RemoveAll(s => s.contract_name == bestEndStation.contract_name);
+
+                // await recursiveItinerary(endPosition, endPosition, itinerary, allStations);
+                return;
             }
         }
 
@@ -132,16 +138,16 @@ namespace GPS_Server
         private List<Station> findHaversineClosestStation(Position startPos, Position endPos, List<Station> allStations, int precision)
         {
 
+            Console.WriteLine($"TEst : {allStations.Count}");
             var stationsWithDistance = new List<(Station station, double distance)>();
 
             foreach (Station s in allStations)
             {
 
                 double startToStation = GeoUtils.HaversineDistance(startPos, s.position);
-                double stationToEnd = GeoUtils.HaversineDistance(s.position, endPos);
-                double totalDistance = startToStation + stationToEnd;
 
-                stationsWithDistance.Add((s, totalDistance));
+                stationsWithDistance.Add((s,startToStation));
+
             }
 
             var closestStations = stationsWithDistance
@@ -149,6 +155,7 @@ namespace GPS_Server
                .Take(precision) // Représente le nombre de station qu'on cherche autour de nous ( attention l'augmenter risque ban API ORS )
                .Select(sd => sd.station)
                .ToList();
+
 
             return closestStations;
         }

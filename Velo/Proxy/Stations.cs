@@ -22,6 +22,13 @@ namespace Proxy
             requestStation(contract).Wait();
         }
 
+
+        public Stations()
+        {
+            stations = new List<Station>();
+            requestAllStation().Wait();
+        }
+
         async Task requestStation(string contract)
         {
             HttpClient client = new HttpClient();

@@ -13,6 +13,7 @@ namespace Proxy
         T Get<T>(string CacheItemName);
         T Get<T>(string CacheItemName, double dt_seconds);
         T Get<T>(string CacheItemName, DateTimeOffset dt);
+        T GetAll<T>(string CacheItemName);
 
     }
 }

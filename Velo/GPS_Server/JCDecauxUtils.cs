@@ -67,10 +67,8 @@ namespace GPS_Server
         {
             using (var client = new ProxyCacheClient())
             {
-
                 try
                 {
-                    
                         Stations stations = client.GetAllStations();
                         Console.WriteLine($"[GPS] - Nombre de stations récupérées pour toutes les stations : {stations.stations.Length}");
                         return stations;

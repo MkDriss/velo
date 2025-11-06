@@ -33,18 +33,16 @@ namespace GPS_Server
 
         public void add(Itinerary it2)
         {
-            this.bikingPath.Concat(it2.bikingPath);
-            this.pedestrianPath.Concat(it2.pedestrianPath);
+            this.bikingPath = this.bikingPath.Concat(it2.bikingPath).ToList();
+            this.pedestrianPath = this.pedestrianPath.Concat(it2.pedestrianPath).ToList();
         }
-        
+
         public double getDuration()
         {
             double total = 0;
-            Console.WriteLine("1");
 
             foreach (JsonDocument doc in pedestrianPath)
             {
-                Console.WriteLine("1");
 
                 total += getDurationJson(doc);
             }
@@ -72,9 +70,9 @@ namespace GPS_Server
             }
             catch (Exception e)
             {
-                Console.WriteLine("[ORS] - getDuration error ");
-                Console.WriteLine(e);
-                Console.WriteLine(doc.RootElement.GetRawText());
+                Console.WriteLine("[ORS] - getDuration error JSON");
+                //Console.WriteLine(e);
+                //Console.WriteLine(doc.RootElement.GetRawText());
                 return 0;
             }
         }

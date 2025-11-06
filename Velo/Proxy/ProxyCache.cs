@@ -31,7 +31,7 @@ namespace Proxy
         public Stations GetAllStations()
         {
 
-            var stations = stationsCache.Get<Stations>("");
+            var stations = stationsCache.GetAll<Stations>("ALL");
             if (stations == null)
             {
                 Console.WriteLine($"[ProxyCache] Aucune station trouvée pour le GetAllStations");
