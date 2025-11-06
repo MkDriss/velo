@@ -13,7 +13,7 @@ namespace GPS_Server
         public List<JsonDocument> bikingPath;
         public List<JsonDocument> pedestrianPath;
 
-        public Itinerary(List<JsonDocument> bikingPath, List<JsonDocument> pedestrianPath)
+        public Itinerary(List<JsonDocument> pedestrianPath, List<JsonDocument> bikingPath)
         {
             this.bikingPath = bikingPath;
             this.pedestrianPath = pedestrianPath;

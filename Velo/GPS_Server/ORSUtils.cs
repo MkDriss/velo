@@ -14,6 +14,8 @@ namespace GPS_Server
     class ORSUtils
     {
         private readonly HttpClient _httpClient;
+        private const double Epsilon = 1e-6;
+        
         public ORSUtils()
         {
             _httpClient = new HttpClient();
@@ -40,7 +42,8 @@ namespace GPS_Server
 
         private async Task<Itinerary> recursiveItinerary(Position startPosition, Position endPosition, Itinerary itinerary, List<Station> allStations)
         {
-            if(startPosition == endPosition)
+
+            if(((startPosition.latitude - endPosition.latitude) < Epsilon) && ((startPosition.longitude - endPosition.longitude) < Epsilon))
             {
                 return new Itinerary();
             }
@@ -56,6 +59,7 @@ namespace GPS_Server
 
             foreach(Station closeStartStation in closestStations)
             {
+                Console.WriteLine("Test");
                 Stations sameContractStation = JCDecauxUtils.getStations(closeStartStation.contract_name);
 
                 Station endCurrentStation = null;
@@ -63,6 +67,12 @@ namespace GPS_Server
                 
                 foreach (Station closestEndStation in sameContractStation.stations)
                 {
+                    if(endCurrentStation == null)
+                    {
+                        endCurrentStation = closestEndStation;
+                        continue;
+                    }
+
                     double distance = GeoUtils.HaversineDistance(endCurrentStation.position, endPosition);
 
                     if (distance < bestDistance)
@@ -89,6 +99,13 @@ namespace GPS_Server
 
 
             Console.WriteLine(itinerary.pedestrianPath.Count);
+
+            if(bestItinerary == null)
+            {
+
+                itinerary.add(walkItinerary);
+                return await recursiveItinerary(endPosition, endPosition, itinerary, allStations);
+            }
 
 
             if (bestItinerary.getDuration() < walkItinerary.getDuration())
