@@ -8,6 +8,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Runtime.Serialization;
 using System.Security.Cryptography.X509Certificates;
 using System.ServiceModel;
+using System.ServiceModel.Web;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -20,6 +21,9 @@ namespace GPS_Server
 	{
         public string GetItinerary(string address1, string address2)
         {
+
+            AddCorsHeaders();
+
             Console.WriteLine($"[GPS] - Calcul d'itinérarire entre {address1} et {address2}");
 
             Address start = new Address(address1);
@@ -94,6 +98,14 @@ namespace GPS_Server
             return closestStations;
         }
 
+
+        private void AddCorsHeaders()
+        {
+            var response = WebOperationContext.Current.OutgoingResponse;
+            response.Headers.Add("Access-Control-Allow-Origin", "*");
+            response.Headers.Add("Access-Control-Allow-Methods", "*");
+            response.Headers.Add("Access-Control-Allow-Headers", "*");
+        }
 
     }
 }
