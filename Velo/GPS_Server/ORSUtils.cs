@@ -83,7 +83,9 @@ namespace GPS_Server
                 bikePath = ToElements(bike)
             };
 
+
             string jsonString = JsonSerializer.Serialize(bestRouteObj);
+            Console.WriteLine("[ORS] - Best Route found !!");
             return JsonDocument.Parse(jsonString);
         }
 

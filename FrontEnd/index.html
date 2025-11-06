@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="./style.css">
+    <!-- Performances -->
+    <script src="components/footer-custom/footerCustom.js" defer></script>
+    <script src="components/input-custom/inputCustom.js" defer></script>
+    <script src="components/GeoMap/geomap.js" defer></script>
+
+
+    <title>Harmonisation</title>
+</head>
+
+<body>
+    <header>
+        <img src="./assets/cropped-logo_reseau_Polytech.png" alt="Logo Polytech" id="desktopNavIcon">
+
+        <!-- <img src="./assets/cropped-logo_reseau_Polytech.png" alt="Logo Polytech" id="mobileNavIcon"> -->
+
+        <nav>
+            <a href="/" title="Introduction">Introduction</a>
+            <a href="/web-statique" title="Pages web statiques">Pages web statiques</a>
+            <a href="/web-dynamique" title="Pages web dynamiques">Pages web dynamiques</a>
+            <a href="/serveurs" title="Serveurs">Serveurs</a>
+            <a href="/architecture" title="Architecture">Architecture</a>
+        </nav>
+
+        <div id="menu" class="inactive" onclick="toggle_menu()">
+            <div class="line" id="line1"></div>
+            <div class="line" id="line2"></div>
+            <div class="line" id="line3"></div>
+        </div>
+
+    </header>
+
+    <nav id="mobileNav" class="mobileNavInactive">
+        <h2>Autres Pages</h2>
+        <a href="/" title="Introduction">Introduction</a>
+        <a href="/web-statique" title="Pages web statiques">Pages web statiques</a>
+        <a href="/web-dynamique" title="Pages web dynamiques">Pages web dynamiques</a>
+        <a href="/serveurs" title="Serveurs">Serveurs</a>
+        <a href="/architecture" title="Architecture">Architecture</a>
+        <a href="/bonus" title="Bonus" class="selectedLink">Bonus</a>
+    </nav>
+
+    <aside id="aside">
+        <h2>Chapitres</h2>
+        <ul id="submenu">
+            <li>submenu 1</li>
+            <li>submenu 2</li>
+            <li>submenu 3</li>
+        </ul>
+    </aside>
+    <main class="main">
+        <h1 class="title">Titre 1</h1>
+        <div class="research">
+            <input-custom>
+                <span slot="name">Departure</span>
+            </input-custom>
+            <input-custom>
+                <span slot="name">Arrival</span>
+            </input-custom>
+        </div>
+        <geo-map></geo-map>
+    </main>
+
+    <footer-custom>
+        <span slot="name">Driss Meskini</span>
+        <span slot="ecole">Polytech Marseille</span>
+    </footer-custom>
+</body>
+
+
+<script>
+    function toggle_menu() {
+        let menu = document.getElementById("menu");
+        let mobileNav = document.getElementById("mobileNav");
+        if (menu.classList.contains("inactive")) {
+            menu.classList.replace("inactive", "active");
+            mobileNav.classList.replace("mobileNavInactive", "mobileNavActive");
+        }
+        else {
+            menu.classList.replace("active", "inactive");
+            mobileNav.classList.replace("mobileNavActive", "mobileNavInactive");
+        }
+    }
+</script>
+
+</html>
