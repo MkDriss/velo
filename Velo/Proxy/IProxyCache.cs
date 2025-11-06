@@ -16,5 +16,9 @@ namespace Proxy
 
         [OperationContract]
         string GetContract(string cityName);
+
+
+        [OperationContract]
+        Stations GetAllStations();
     }
 }

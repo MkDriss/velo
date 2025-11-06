@@ -50,7 +50,16 @@ namespace GPS_Server
 
             }
 
-            return null;
+            else
+            {
+                Console.WriteLine("[GPS] - Contract différent");
+                Stations stations = JCDecauxUtils.getAllStations();
+
+                ORSUtils ORS = new ORSUtils();
+
+                return ORS.computeComplexItinerary(stations.stations.ToList(), start.position, end.position).GetAwaiter().GetResult().RootElement.GetRawText();
+
+            }
         }
 
         private List<Station> findClosestStations(Stations stList, Position position, int numberStation,bool isStart)

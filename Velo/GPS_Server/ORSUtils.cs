@@ -30,27 +30,120 @@ namespace GPS_Server
             }
         }
 
+        public async Task<JsonDocument> computeComplexItinerary(List<Station> allStations, Position startPos, Position endPos)
+        {
+
+            Position currentPosition = startPos;
+            List<JsonDocument> finalPedestrian = new List<JsonDocument>();
+            List<JsonDocument> finalBiking = new List<JsonDocument>();
+
+            while(currentPosition != endPos) {
+
+                var stationsWithDistance = new List<(Station station, double distance)>();
+
+                foreach (Station station in allStations)
+                {
+                    double startToStation = GeoUtils.HaversineDistance(currentPosition, station.position);
+                    double stationToEnd = GeoUtils.HaversineDistance(station.position, endPos);
+                    double totalDistance = startToStation + stationToEnd;
+
+                    stationsWithDistance.Add((station, totalDistance));
+                }
+
+                var closestStations = stationsWithDistance
+                   .OrderBy(sd => sd.distance)
+                   .Take(2) // Représente le nombre de station qu'on cherche autour de nous ( attention l'augmenter risque ban API ORS )
+                   .Select(sd => sd.station)
+                   .ToList();
+
+
+                List<JsonDocument> pedestrian = null;
+                List<JsonDocument> bike = null;
+                double bestItineraryTime = double.MaxValue;
+                Station endItineraryStation = null;
+
+                foreach (Station station in closestStations)
+                {
+                    Stations currentCityStations = JCDecauxUtils.getStations(station.contract_name);
+
+                    Station endCurrentStation = null;
+                    double bestDistance = double.MaxValue;
+
+                    foreach (Station endStation in currentCityStations.stations)
+                    {
+                        double distance = GeoUtils.HaversineDistance(endStation.position, endPos);
+
+                        if(distance < bestDistance)
+                        {
+                            endCurrentStation = endStation;
+                            bestDistance = distance;
+                        }
+                    }
+
+                    JsonDocument walkRoute1 = await getRoute(currentPosition, station.position, "foot-walking");
+                    JsonDocument bikeRoute = await getRoute(station.position, endCurrentStation.position, "cycling-regular");
+                    JsonDocument walkRoute2 = await getRoute(endCurrentStation.position, endPos, "foot-walking");
+
+                    double routeDuration = getDuration(walkRoute1) + getDuration(bikeRoute) + getDuration(walkRoute2);
+                    if (routeDuration < bestItineraryTime)
+                    {
+                        pedestrian.Add(walkRoute1);
+                        pedestrian.Add(walkRoute2);
+                        bike.Add(bikeRoute);
+                        endItineraryStation = endCurrentStation;
+                        bestItineraryTime = routeDuration;
+                    }
+
+                }
+
+                JsonDocument walkRoute = await getRoute(currentPosition, endPos, "foot-walking");
+
+
+                if(getDuration(walkRoute) > bestItineraryTime)
+                {
+                    currentPosition = endItineraryStation.position;
+                    finalBiking.Concat(bike);
+                    finalPedestrian.Concat(pedestrian);
+                }
+                else
+                {
+                    currentPosition = endPos;
+                    finalPedestrian.Add(walkRoute);
+                }
+                
+            }
+
+            return CreateBestRouteJson(finalPedestrian, finalBiking);
+        }
+
         public async Task<JsonDocument> computeBestItinerary(List<Station> startStations, List<Station> endStations, Position startPos, Position endPos)
         {
 
-            double bestTime = double.MaxValue;
-            List<JsonDocument> pedestrian = new List<JsonDocument>();
+            JsonDocument walkingPath = await getRoute(startPos, endPos, "foot-walking");
+
+            double bestTime = getDuration(walkingPath);
+            List<JsonDocument> pedestrian = new List<JsonDocument> { walkingPath };
             List<JsonDocument> bike = new List<JsonDocument>();
 
 
-            foreach (Station start in startStations)
+            foreach (Station startStation in startStations)
             {
-                foreach (Station end in endStations)
+                foreach (Station endStation in endStations)
                 {
 
-                    // Temps à pieds du départ jusqu'a la station start
-                    JsonDocument walkStartPath = await getRoute(startPos, endPos, "foot-walking");
-                    JsonDocument bikePath = await getRoute(startPos, endPos, "cycling-regular");
-                    JsonDocument walkEndPath = await getRoute(startPos, endPos, "foot-walking");
+                    if(startStation == endStation)
+                    {
+                        break;
+                    }
+
+                    JsonDocument walkStartPath = await getRoute(startPos, startStation.position, "foot-walking");
+                    JsonDocument bikePath = await getRoute(startStation.position, endStation.position, "cycling-regular");
+                    JsonDocument walkEndPath = await getRoute(endStation.position, endPos, "foot-walking");
 
                     double totalTime = getDuration(walkStartPath) + getDuration(bikePath) + getDuration(walkEndPath);
 
-                    if(totalTime < bestTime)
+
+                    if (totalTime < bestTime)
                     {
                         bestTime = totalTime;
                         pedestrian = new List<JsonDocument> { walkStartPath, walkEndPath };
@@ -93,13 +186,22 @@ namespace GPS_Server
 
         private double getDuration(JsonDocument doc)
         {
-           
-          return doc.RootElement
-                    .GetProperty("features")[0]
-                    .GetProperty("properties")
-                    .GetProperty("summary")
-                    .GetProperty("duration")
-                    .GetDouble();
+            try
+            {
+                return doc.RootElement
+                          .GetProperty("features")[0]
+                          .GetProperty("properties")
+                          .GetProperty("summary")
+                          .GetProperty("duration")
+                          .GetDouble();
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("[ORS] - getDuration error ");
+                Console.WriteLine(e);
+                Console.WriteLine(doc.RootElement.GetRawText());
+                return 0;
+            }
         }
 
         public async Task<JsonDocument> getRoute(Position startPosition, Position endPosition, string profile)
@@ -129,45 +231,5 @@ namespace GPS_Server
             return JsonDocument.Parse(responseString);
         }
 
-
-
-        public double GetWalkingDistance(double lon1, double lat1, double lon2, double lat2)
-        {
-            string url = "https://api.openrouteservice.org/v2/directions/foot-walking";
-
-            double[][] coordinates = new double[][]
-            {
-                new double[] { lon1, lat1 },
-                new double[] { lon2, lat2 }
-            };
-
-            var requestBody = new { coordinates };
-
-            using (var client = new HttpClient())
-            {
-                client.DefaultRequestHeaders.Add("Authorization", ApiKeys.ORS_API_KEY);
-
-                var content = new StringContent(JsonSerializer.Serialize(requestBody));
-                content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
-
-                // Appel async de manière synchrone (C# 7.3)
-                var response = client.PostAsync(url, content).GetAwaiter().GetResult();
-                response.EnsureSuccessStatusCode();
-
-                var responseBody = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-
-                using (JsonDocument json = JsonDocument.Parse(responseBody))
-                {
-                    double distance = json.RootElement
-                        .GetProperty("features")[0]
-                        .GetProperty("properties")
-                        .GetProperty("summary")
-                        .GetProperty("distance")
-                        .GetDouble();
-
-                    return distance;
-                }
-            }
-        }
     }
 }

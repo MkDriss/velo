@@ -19,6 +19,12 @@
   <wsdl:message name="IProxyCache_GetContract_OutputMessage">
     <wsdl:part name="parameters" element="tns:GetContractResponse" />
   </wsdl:message>
+  <wsdl:message name="IProxyCache_GetAllStations_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetAllStations" />
+  </wsdl:message>
+  <wsdl:message name="IProxyCache_GetAllStations_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetAllStationsResponse" />
+  </wsdl:message>
   <wsdl:portType name="IProxyCache">
     <wsdl:operation name="GetStations">
       <wsdl:input wsaw:Action="http://tempuri.org/IProxyCache/GetStations" message="tns:IProxyCache_GetStations_InputMessage" />
@@ -27,6 +33,10 @@
     <wsdl:operation name="GetContract">
       <wsdl:input wsaw:Action="http://tempuri.org/IProxyCache/GetContract" message="tns:IProxyCache_GetContract_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IProxyCache/GetContractResponse" message="tns:IProxyCache_GetContract_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAllStations">
+      <wsdl:input wsaw:Action="http://tempuri.org/IProxyCache/GetAllStations" message="tns:IProxyCache_GetAllStations_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IProxyCache/GetAllStationsResponse" message="tns:IProxyCache_GetAllStations_OutputMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="BasicHttpBinding_IProxyCache" type="tns:IProxyCache">
@@ -42,6 +52,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetContract">
       <soap:operation soapAction="http://tempuri.org/IProxyCache/GetContract" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAllStations">
+      <soap:operation soapAction="http://tempuri.org/IProxyCache/GetAllStations" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>

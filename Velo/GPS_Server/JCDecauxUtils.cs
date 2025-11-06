@@ -60,5 +60,30 @@ namespace GPS_Server
             }
 
         }
+
+
+
+        public static Stations getAllStations()
+        {
+            using (var client = new ProxyCacheClient())
+            {
+
+                try
+                {
+                    
+                        Stations stations = client.GetAllStations();
+                        Console.WriteLine($"[GPS] - Nombre de stations récupérées pour toutes les stations : {stations.stations.Length}");
+                        return stations;
+                    
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[GPS] - Erreur lors de l’appel ProxyCacheClient : {ex.Message}");
+                    Console.WriteLine(ex.StackTrace);
+                    return null;
+                }
+            }
+
+        }
     }
 }

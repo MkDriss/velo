@@ -28,6 +28,17 @@ namespace Proxy
             return stations;
         }
 
+        public Stations GetAllStations()
+        {
+
+            var stations = stationsCache.Get<Stations>("");
+            if (stations == null)
+            {
+                Console.WriteLine($"[ProxyCache] Aucune station trouvée pour le GetAllStations");
+            }
+            return stations;
+        }
+
         public string GetContract(string cityName)
         {
             if (string.IsNullOrEmpty(cityName))
