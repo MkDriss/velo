@@ -281,6 +281,12 @@ namespace GPS_Server.ProxyCache {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IProxyCache/GetAllStations", ReplyAction="http://tempuri.org/IProxyCache/GetAllStationsResponse")]
         System.Threading.Tasks.Task<GPS_Server.ProxyCache.Stations> GetAllStationsAsync();
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IProxyCache/GetOrsResponse", ReplyAction="http://tempuri.org/IProxyCache/GetOrsResponseResponse")]
+        Proxy.OrsResponse GetOrsResponse(string ors);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IProxyCache/GetOrsResponse", ReplyAction="http://tempuri.org/IProxyCache/GetOrsResponseResponse")]
+        System.Threading.Tasks.Task<Proxy.OrsResponse> GetOrsResponseAsync(string ors);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -332,6 +338,14 @@ namespace GPS_Server.ProxyCache {
         
         public System.Threading.Tasks.Task<GPS_Server.ProxyCache.Stations> GetAllStationsAsync() {
             return base.Channel.GetAllStationsAsync();
+        }
+        
+        public Proxy.OrsResponse GetOrsResponse(string ors) {
+            return base.Channel.GetOrsResponse(ors);
+        }
+        
+        public System.Threading.Tasks.Task<Proxy.OrsResponse> GetOrsResponseAsync(string ors) {
+            return base.Channel.GetOrsResponseAsync(ors);
         }
     }
 }

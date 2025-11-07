@@ -20,5 +20,6 @@ namespace Proxy
         }
 
         public Position() { }
+
     }
 }

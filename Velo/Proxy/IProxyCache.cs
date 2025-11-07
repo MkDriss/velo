@@ -20,5 +20,9 @@ namespace Proxy
 
         [OperationContract]
         Stations GetAllStations();
+
+        [OperationContract]
+        OrsResponse GetOrsResponse(string ors);
+        
     }
 }

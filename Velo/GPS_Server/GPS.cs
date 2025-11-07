@@ -50,7 +50,7 @@ namespace GPS_Server
 
                 Console.WriteLine("[GPS] - Compute Itinerary");
 
-                return ORS.computeBestItinerary(startClosestStation, endClosestStation, start.position, end.position).GetAwaiter().GetResult().RootElement.GetRawText();
+                return ORS.computeBestItinerary(startClosestStation, endClosestStation, start.position, end.position).RootElement.GetRawText();
 
             }
 

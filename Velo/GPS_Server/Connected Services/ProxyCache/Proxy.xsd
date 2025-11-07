@@ -31,4 +31,10 @@
     </xs:sequence>
   </xs:complexType>
   <xs:element name="Position" nillable="true" type="tns:Position" />
+  <xs:complexType name="OrsResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="value" nillable="true" type="xs:string" />
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="OrsResponse" nillable="true" type="tns:OrsResponse" />
 </xs:schema>

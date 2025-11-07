@@ -13,24 +13,10 @@ namespace GPS_Server
 {
     class ORSUtils
     {
-        private readonly HttpClient _httpClient;
+
         private const double Epsilon = 1e-5;
         
-        public ORSUtils()
-        {
-            _httpClient = new HttpClient();
-            try
-            {
-                _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", ApiKeys.ORS_API_KEY); // On fait ça pour skip les verifications qui bloque l'ajout, étrange mais en forcant ça passe
-                _httpClient.Timeout = TimeSpan.FromSeconds(15);
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"[ORS] - Erreur en ajoutant le header : {ex}");
-            }
-        }
+        public ORSUtils(){}
 
         private bool PositionsEqual(Position a, Position b, double eps = Epsilon)
         {
@@ -54,7 +40,7 @@ namespace GPS_Server
                 return;
             }
 
-            JsonDocument walkGlobalRoute = await getRoute(startPosition, endPosition, "foot-walking");
+            JsonDocument walkGlobalRoute = getRoute(startPosition, endPosition, "foot-walking");
             Itinerary walkItinerary = new Itinerary(new List<JsonDocument>{ walkGlobalRoute });
 
             List<Station> closestStations = findHaversineClosestStation(startPosition, endPosition, allStations, 2);
@@ -88,9 +74,9 @@ namespace GPS_Server
                     }
                 }
 
-                JsonDocument walkRoute1 = await getRoute(startPosition, closeStartStation.position, "foot-walking");
-                JsonDocument bikeRoute = await getRoute(closeStartStation.position, endCurrentStation.position, "cycling-regular");
-                JsonDocument walkRoute2 = await getRoute(endCurrentStation.position, endPosition, "foot-walking");
+                JsonDocument walkRoute1 = getRoute(startPosition, closeStartStation.position, "foot-walking");
+                JsonDocument bikeRoute = getRoute(closeStartStation.position, endCurrentStation.position, "cycling-regular");
+                JsonDocument walkRoute2 = getRoute(endCurrentStation.position, endPosition, "foot-walking");
 
                 double routeDuration = getDuration(walkRoute1) + getDuration(bikeRoute) + getDuration(walkRoute2);
 
@@ -161,10 +147,10 @@ namespace GPS_Server
         }
 
 
-        public async Task<JsonDocument> computeBestItinerary(List<Station> startStations, List<Station> endStations, Position startPos, Position endPos)
+        public JsonDocument computeBestItinerary(List<Station> startStations, List<Station> endStations, Position startPos, Position endPos)
         {
 
-            JsonDocument walkingPath = await getRoute(startPos, endPos, "foot-walking");
+            JsonDocument walkingPath = getRoute(startPos, endPos, "foot-walking");
 
             double bestTime = getDuration(walkingPath);
             List<JsonDocument> pedestrian = new List<JsonDocument> { walkingPath };
@@ -181,9 +167,9 @@ namespace GPS_Server
                         break;
                     }
 
-                    JsonDocument walkStartPath = await getRoute(startPos, startStation.position, "foot-walking");
-                    JsonDocument bikePath = await getRoute(startStation.position, endStation.position, "cycling-regular");
-                    JsonDocument walkEndPath = await getRoute(endStation.position, endPos, "foot-walking");
+                    JsonDocument walkStartPath = getRoute(startPos, startStation.position, "foot-walking");
+                    JsonDocument bikePath = getRoute(startStation.position, endStation.position, "cycling-regular");
+                    JsonDocument walkEndPath = getRoute(endStation.position, endPos, "foot-walking");
 
                     double totalTime = getDuration(walkStartPath) + getDuration(bikePath) + getDuration(walkEndPath);
 
@@ -202,7 +188,6 @@ namespace GPS_Server
             Itinerary itinerary = new Itinerary(pedestrian, bike);
 
             return CreateBestRouteJson(itinerary);
-
         }
 
         public JsonDocument CreateBestRouteJson(Itinerary itinerary)
@@ -251,31 +236,35 @@ namespace GPS_Server
             }
         }
 
-        public async Task<JsonDocument> getRoute(Position startPosition, Position endPosition, string profile)
+        public JsonDocument getRoute(Position startPosition, Position endPosition, string profile)
         {
-
-            string url = $"https://api.openrouteservice.org/v2/directions/{profile}/geojson";
-
-
-            // Le corps de la requête doit contenir les coordonnées [lon, lat]
-            var body = new
+            using (var client = new ProxyCacheClient())
             {
-                coordinates = new[]
+
+                var contextDto = new OrsContextDto
                 {
-                new[] { startPosition.longitude, startPosition.latitude },
-                new[] { endPosition.longitude, endPosition.latitude }
+                    StartPosition = new PositionDto
+                    {
+                        Longitude = startPosition.longitude,
+                        Latitude = startPosition.latitude
+                    },
+                    EndPosition = new PositionDto
+                    {
+                        Longitude = endPosition.longitude,
+                        Latitude = endPosition.latitude
+                    }
+                };
+
+                string json = JsonSerializer.Serialize(contextDto);
+
+                OrsResponse response = client.GetOrsResponse(json);
+
+                Console.Write(response.value);
+
+                return JsonDocument.Parse(response.value);
+
             }
-            };
 
-            var json = JsonSerializer.Serialize(body);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            Console.WriteLine($"[ORS] - POST vers {url}");
-            HttpResponseMessage response = await _httpClient.PostAsync(url, content).ConfigureAwait(false);
-            response.EnsureSuccessStatusCode();
-
-            string responseString = await response.Content.ReadAsStringAsync();
-            return JsonDocument.Parse(responseString);
         }
 
     }

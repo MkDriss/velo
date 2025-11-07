@@ -11,6 +11,7 @@ namespace Proxy
 
         private static GenericProxyCache stationsCache = new GenericProxyCache("stationsCache");
         private static GenericProxyCache contractCache = new GenericProxyCache("contractCache");
+        private static GenericProxyCache orsCache = new GenericProxyCache("itineraryCache");
 
         public Stations GetStations(string contract)
         {
@@ -51,9 +52,11 @@ namespace Proxy
             return contract.contractName;
         }
 
+        public OrsResponse GetOrsResponse(string ors)
+        {
+            if (string.IsNullOrEmpty(ors)) return null;
 
-
-
-
+            return orsCache.Get<OrsResponse>(ors);
+        }
     }
 }
