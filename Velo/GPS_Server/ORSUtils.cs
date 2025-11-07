@@ -28,7 +28,6 @@ namespace GPS_Server
         {
             Itinerary itinerary = new Itinerary();
             await recursiveItinerary(startPos, endPos, itinerary, allStations);
-            Console.WriteLine($"TEST : {itinerary.pedestrianPath.Count}");
             return CreateBestRouteJson(itinerary);          
         }
 
@@ -163,8 +162,6 @@ namespace GPS_Server
         }
         private List<Station> findHaversineClosestStation(Position startPos, Position endPos, List<Station> allStations, int precision)
         {
-
-            Console.WriteLine($"TEst : {allStations.Count}");
             var stationsWithDistance = new List<(Station station, double distance)>();
 
             foreach (Station s in allStations)

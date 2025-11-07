@@ -20,6 +20,35 @@ namespace Proxy
             cache = new MemoryCache(cacheName);
         }
 
+
+
+        public T GetAll<T>(string CacheItemName)
+        {
+            var ItemValue = cache.Get(CacheItemName);
+
+            if (ItemValue == null || !cache.Contains(CacheItemName))
+            {
+                var instance = Activator.CreateInstance(typeof(T));
+                cache.Add(CacheItemName, instance, dt_default);
+            }
+
+            return (T)cache.Get(CacheItemName);
+        }
+
+        public T GetAll<T>(string CacheItemName, double dt_seconds)
+        {
+            var ItemValue = cache.Get(CacheItemName);
+
+            if (ItemValue == null || !cache.Contains(CacheItemName))
+            {
+                DateTimeOffset dt_new = DateTimeOffset.Now.AddSeconds(dt_seconds);
+                var instance = Activator.CreateInstance(typeof(T));
+                cache.Add(CacheItemName, instance, dt_new);
+            }
+
+            return (T)cache.Get(CacheItemName);
+        }
+
         public T Get<T>(string CacheItemName)
         {
             var ItemValue = cache.Get(CacheItemName);
@@ -34,20 +63,6 @@ namespace Proxy
 
         }
 
-        public T GetAll<T>(string CacheItemName)
-        {
-            var ItemValue = cache.Get(CacheItemName);
-
-            if (ItemValue == null || !cache.Contains(CacheItemName))
-            {
-                var instance = Activator.CreateInstance(typeof(T));
-                cache.Add(CacheItemName, instance, dt_default);
-            }
-
-            return (T)cache.Get(CacheItemName);
-
-        }
-
         public T Get<T>(string CacheItemName, double dt_seconds)
         {
             var ItemValue = cache.Get(CacheItemName);
@@ -55,9 +70,9 @@ namespace Proxy
             if (ItemValue == null || !cache.Contains(CacheItemName))
             {
 
-                DateTimeOffset dt_new = dt_default.AddSeconds(dt_seconds);
+                DateTimeOffset dt_new = DateTimeOffset.Now.AddSeconds(dt_seconds);
                 var instance = Activator.CreateInstance(typeof(T), CacheItemName);
-                cache.Add(CacheItemName, instance, dt_default);
+                cache.Add(CacheItemName, instance, dt_new);
             }
 
             return (T)cache.Get(CacheItemName);

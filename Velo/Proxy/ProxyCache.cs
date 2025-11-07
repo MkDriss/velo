@@ -21,7 +21,7 @@ namespace Proxy
                 return null;
             }
 
-            var stations = stationsCache.Get<Stations>(contract);
+            var stations = stationsCache.Get<Stations>(contract, 600.0); //10 minutes de délais
             if (stations == null)
             {
                 Console.WriteLine($"[ProxyCache] Aucune station trouvée pour le contrat '{contract}'");
@@ -32,7 +32,7 @@ namespace Proxy
         public Stations GetAllStations()
         {
 
-            var stations = stationsCache.GetAll<Stations>("ALL");
+            var stations = stationsCache.GetAll<Stations>("ALL", 600.0); //10 minutes de délais
             if (stations == null)
             {
                 Console.WriteLine($"[ProxyCache] Aucune station trouvée pour le GetAllStations");
@@ -45,7 +45,7 @@ namespace Proxy
             if (string.IsNullOrEmpty(cityName))
                 return null;
 
-            var contract = contractCache.Get<Contract>(cityName);
+            var contract = contractCache.Get<Contract>(cityName, 86400.0); // 24h de délais
             if (contract == null || string.IsNullOrEmpty(contract.contractName))
                 return null;
 
@@ -55,10 +55,10 @@ namespace Proxy
         public OrsResponse GetOrsResponse(string ors)
         {
 
-            Console.WriteLine("[PROXY_CACHE] - ", ors);
+            
             if (string.IsNullOrEmpty(ors)) return null;
 
-            return orsCache.Get<OrsResponse>(ors);
+            return orsCache.Get<OrsResponse>(ors, 86400.0); // 24h de délais
             
         }
     }

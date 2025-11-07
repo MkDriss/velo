@@ -53,20 +53,15 @@ namespace Proxy
             {
                 Console.WriteLine($"[ORS] - Erreur en ajoutant le header : {ex}");
             }
-           
+
             HttpResponseMessage response = await _httpClient.PostAsync(url, content).ConfigureAwait(false);
-            Console.WriteLine("AFTER POST-- ! \n");
 
             string responseBody = await response.Content.ReadAsStringAsync();
-            Console.WriteLine("RESPONSE BODY ↓↓↓");
-            Console.WriteLine(responseBody);
 
 
             response.EnsureSuccessStatusCode();
-            Console.WriteLine("AFTER STATUS CHECK-- ! \n");
 
             value = await response.Content.ReadAsStringAsync();
-            Console.WriteLine("AFTER CONVERT TO STRING-- ! \n", value);
         }
     }
 }

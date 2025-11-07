@@ -47,8 +47,6 @@ namespace GPS_Server
                 total += getDurationJson(doc);
             }
 
-            Console.WriteLine("1");
-
             foreach (JsonDocument doc in bikingPath)
             {
                 total += getDurationJson(doc);
