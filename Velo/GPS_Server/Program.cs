@@ -16,16 +16,15 @@ namespace GPS_Server
             proxyHost.Open();
             Console.WriteLine("ProxyCache running at " + proxyAddress);
 
-            // --- Démarrer GPSServer (inchangé) ---
+            // --- Démarrer GPSServer ---
             var gpsAddress = new Uri("http://localhost:8701/GPSServer/");
-            using (var gpsHost = new WebServiceHost(typeof(GPS), gpsAddress))
+            using (ServiceHost gpsHost = new ServiceHost(typeof(GPS), gpsAddress))
             {
-                var endpoint = gpsHost.AddServiceEndpoint(typeof(IGPS), new WebHttpBinding(), "");
-                endpoint.Behaviors.Add(new WebHttpBehavior());
-
                 gpsHost.Open();
-                Console.WriteLine("GPSServer running at " + gpsAddress);
-                Console.WriteLine("Press Enter to stop both services...");
+                Console.WriteLine("GPSServer running...");
+                Console.WriteLine("SOAP WSDL: " + gpsAddress + "?wsdl");
+                Console.WriteLine("REST endpoint: " + gpsAddress + "rest/");
+                Console.WriteLine("Press Enter to stop...");
                 Console.ReadLine();
             }
 

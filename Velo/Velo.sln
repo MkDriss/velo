@@ -10,6 +10,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GPS_Server", "GPS_Server\GP
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Proxy", "Proxy\Proxy.csproj", "{892ABA35-8287-464E-8A2E-11E4CEF02431}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client_Lourd", "Client_Lourd\Client_Lourd.csproj", "{630F2773-0DE7-4C2D-8453-7BB04D4003B4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,6 +26,10 @@ Global
 		{892ABA35-8287-464E-8A2E-11E4CEF02431}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{892ABA35-8287-464E-8A2E-11E4CEF02431}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{892ABA35-8287-464E-8A2E-11E4CEF02431}.Release|Any CPU.Build.0 = Release|Any CPU
+		{630F2773-0DE7-4C2D-8453-7BB04D4003B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{630F2773-0DE7-4C2D-8453-7BB04D4003B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{630F2773-0DE7-4C2D-8453-7BB04D4003B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{630F2773-0DE7-4C2D-8453-7BB04D4003B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

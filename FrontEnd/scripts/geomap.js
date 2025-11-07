@@ -40,7 +40,7 @@ function getRoutePoints() {
 }
 
 async function fetchBikeSeine(departure){
-    const url = `http://localhost:8701/GPSServer/ThrowBikeSeine?start=${departure}`;
+    const url = `http://localhost:8701/GPSServer/rest/ThrowBikeSeine?start=${departure}`;
     console.log("Calling the API with the URL : \n", url)
 
     const response = await fetch(url);
@@ -53,7 +53,7 @@ async function fetchBikeSeine(departure){
 }
 
 async function fetchData(departure, arrival){
-    const url = `http://localhost:8701/GPSServer/getItinerary?start=${departure}&end=${arrival}`;
+    const url = `http://localhost:8701/GPSServer/rest/getItinerary?start=${departure}&end=${arrival}`;
 
     console.log("Calling the API with the URL : \n", url)
 
