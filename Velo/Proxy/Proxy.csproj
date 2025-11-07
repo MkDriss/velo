@@ -140,6 +140,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="GenericProxyCache.cs" />
     <Compile Include="ProxyCache.cs" />
+    <Compile Include="ProxyHostFactory.cs" />
     <Compile Include="Station.cs" />
     <Compile Include="Stations.cs" />
   </ItemGroup>
