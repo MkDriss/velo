@@ -99,6 +99,22 @@ namespace GPS_Server
         }
 
 
+        public string ThrowBikeSeine(string address1)
+        {
+            AddCorsHeaders();
+
+            Console.WriteLine($"[GPS] -  Balancer velo dans la seine depuis : {address1}");
+            Stations stations = JCDecauxUtils.getAllStations();
+
+            Address start = new Address(address1);
+
+            ORSUtils ORS = new ORSUtils();
+
+            return ORS.computeThrowBikeSeine(stations.stations.ToList(), start.position).GetAwaiter().GetResult().RootElement.GetRawText();
+
+
+        }
+
         private void AddCorsHeaders()
         {
             var response = WebOperationContext.Current.OutgoingResponse;
