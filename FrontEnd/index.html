@@ -13,6 +13,7 @@
     <script src="components/footer-custom/footerCustom.js" defer></script>
     <script src="components/input-custom/inputCustom.js" defer></script>
     <script src="./scripts/geomap.js" defer></script>
+    <script src="./scripts/utils.js" defer></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
@@ -56,7 +57,7 @@
     <aside id="aside">
         <h2>Chapitres</h2>
         <ul id="submenu">
-            <li>submenu 1</li>
+            <li><button onclick="fillExemple1()">Test 1</button></li>
             <li>submenu 2</li>
             <li>submenu 3</li>
         </ul>
@@ -69,11 +70,17 @@
                 <input-custom id="departure">
                     <span slot="name">Departure</span>
                 </input-custom>
+
+                <div id="steps-container"></div> <!-- contiendra les étapes ajoutées -->
+
                 <input-custom id="arrival">
                     <span slot="name">Arrival</span>
                 </input-custom>
+
                 <button class="research-btn" onclick="findPath()">Research</button>
+                <button class="research-btn" onclick="addStep()">Ajouter une étape</button>
             </section>
+
         </div>
 
         <div id="map"></div>
@@ -86,21 +93,4 @@
         <span slot="ecole">Polytech Nice Sophia</span>
     </footer-custom>
 </body>
-
-
-<script>
-    function toggle_menu() {
-        let menu = document.getElementById("menu");
-        let mobileNav = document.getElementById("mobileNav");
-        if (menu.classList.contains("inactive")) {
-            menu.classList.replace("inactive", "active");
-            mobileNav.classList.replace("mobileNavInactive", "mobileNavActive");
-        }
-        else {
-            menu.classList.replace("active", "inactive");
-            mobileNav.classList.replace("mobileNavActive", "mobileNavInactive");
-        }
-    }
-</script>
-
 </html>

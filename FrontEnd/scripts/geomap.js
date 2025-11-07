@@ -10,62 +10,70 @@ function loadMap() {
     }).addTo(map);
 
     routesLayer = L.layerGroup().addTo(map);
-
 }
 
-async function findPath() {
-    try {
-        routesLayer.clearLayers();
+function getRoutePoints() {
+    // Sélectionner tous les input-custom dans l'ordre d'affichage
+    const inputs = document.querySelectorAll(".input-section input-custom");
 
-        const departureComponent = document.getElementById("departure");
-        const arrivalComponent = document.getElementById("arrival");
+    const points = [];
 
-        const departureInput = departureComponent.shadowRoot.querySelector("input");
-        const arrivalInput = arrivalComponent.shadowRoot.querySelector("input");
+    inputs.forEach(inputCustom => {
+        const input = inputCustom.shadowRoot.querySelector("input");
 
-        if (!departureInput || !arrivalInput) {
-            console.error("Les champs departure ou arrival sont introuvables !");
-            return;
+        if (input) {
+            const value = input.value.trim();
+
+            if (value && value !== "") {
+                points.push(encodeURIComponent(value));
+            }
         }
+    });
 
-        const departure = encodeURIComponent(departureInput.value.trim());
-        const arrival = encodeURIComponent(arrivalInput.value.trim());
+    // Vérification : au minimum un départ + une arrivée
+    if (points.length < 2) {
+        console.warn("Veuillez remplir au moins Departure et Arrival.");
+        return null;
+    }
 
-        if (!departure || !arrival) {
-            console.warn("Veuillez remplir les deux champs.");
-            return;
-        }
+    return points;
+}
 
 
-        const url = `http://localhost:8701/GPSServer/getItinerary?start=${departure}&end=${arrival}`;
+async function fetchData(departure, arrival){
+    const url = `http://localhost:8701/GPSServer/getItinerary?start=${departure}&end=${arrival}`;
 
-        console.log("Calling the API with the URL : \n", url)
+    console.log("Calling the API with the URL : \n", url)
 
-        const response = await fetch(url);
+    console.log("fetching data | departure :", departure, " arrival :", arrival)
 
-        if (!response.ok) {
-            throw new Error(`Erreur HTTP: ${response.status}`);
-        }
+    const response = await fetch(url);
 
-        const text = await response.text();      // ← récupère la chaîne brute
-        const geojson = JSON.parse(text);        // ← parse le premier JSON
-        const parsed = JSON.parse(geojson);      // ← parse le deuxième niveau (celui qui contient pedestrianPath)
+    if (!response.ok) {
+        throw new Error(`Erreur HTTP: ${response.status}`);
+    }
 
+    return response;
+}
+
+async function displayRoute(departure, arrival){
+        console.log("Calcul d'itinéraire en cours");
+        const response = await fetchData(departure, arrival);
+        console.log("Server Response : ", response)
+        const parsed = await parseJSONData(response);     
 
         const pedestrian = parsed.pedestrianPath;
         const bike = parsed.bikePath;
-        
 
-        console.log(geojson);
-
-        // Affichage des chemins
-
-        routesLayer.clearLayers();
         pedestrian.forEach(path => loadPath(path, "blue"));
         bike.forEach(path => loadPath(path, "green"));
-    } catch (err) {
-        console.error("Erreur lors de la récupération de l’itinéraire :", err);
-    }
+}
+
+
+async function parseJSONData(data){
+    const text = await data.text();
+    const geojson = JSON.parse(text)
+    return JSON.parse(geojson);
 }
 
 function loadPath(data, color) {
@@ -77,6 +85,32 @@ function loadPath(data, color) {
     }).addTo(routesLayer);
 
     map.fitBounds(itineraire.getBounds());
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function findPath(){
+    try {
+        routesLayer.clearLayers();
+
+        const points = getRoutePoints();
+
+        console.log(points);
+
+        for(let i = 0; i < points.length - 1; i++){
+            await displayRoute(points[i], points[i+1]);
+            if (i < points.length - 2) {
+                console.log("Attente 30 secondes avant le prochain itinéraire...");
+                await sleep(60000);
+            }
+            console.log("Trajets calculés")
+        }
+
+    } catch (err) {
+        console.error("Erreur lors de la récupération de l’itinéraire :", err);
+    }
 }
 
 loadMap();
