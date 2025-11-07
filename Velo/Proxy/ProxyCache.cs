@@ -54,9 +54,12 @@ namespace Proxy
 
         public OrsResponse GetOrsResponse(string ors)
         {
+
+            Console.WriteLine("[PROXY_CACHE] - ", ors);
             if (string.IsNullOrEmpty(ors)) return null;
 
             return orsCache.Get<OrsResponse>(ors);
+            
         }
     }
 }

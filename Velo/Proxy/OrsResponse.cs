@@ -17,7 +17,6 @@ namespace Proxy
         [DataMember] public string value;
         public OrsResponse() {}
         public OrsResponse(string data) { 
-
             OrsContextDto context = JsonSerializer.Deserialize<OrsContextDto>(data);
             requestOrsResponse(context).Wait();
         }
@@ -57,6 +56,11 @@ namespace Proxy
            
             HttpResponseMessage response = await _httpClient.PostAsync(url, content).ConfigureAwait(false);
             Console.WriteLine("AFTER POST-- ! \n");
+
+            string responseBody = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("RESPONSE BODY ↓↓↓");
+            Console.WriteLine(responseBody);
+
 
             response.EnsureSuccessStatusCode();
             Console.WriteLine("AFTER STATUS CHECK-- ! \n");

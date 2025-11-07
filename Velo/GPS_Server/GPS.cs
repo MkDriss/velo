@@ -110,7 +110,7 @@ namespace GPS_Server
 
             ORSUtils ORS = new ORSUtils();
 
-            return ORS.computeThrowBikeSeine(stations.stations.ToList(), start.position).GetAwaiter().GetResult().RootElement.GetRawText();
+            return ORS.computeThrowBikeSeine(stations.stations.ToList(), start.position).RootElement.GetRawText();
 
 
         }

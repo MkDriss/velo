@@ -121,7 +121,7 @@ namespace GPS_Server
         }
 
 
-        public async Task<JsonDocument> computeThrowBikeSeine(List<Station> allStations, Position startPos)
+        public JsonDocument computeThrowBikeSeine(List<Station> allStations, Position startPos)
         {
             Address seine = new Address("Quai de la Seine 75019 Paris");
 
@@ -133,7 +133,7 @@ namespace GPS_Server
 
             foreach (Station s in closestStations)
             {
-                JsonDocument sroute = await getRoute(startPos, s.position, "foot-walking");
+                JsonDocument sroute = getRoute(startPos, s.position, "foot-walking");
                 Itinerary sitin = new Itinerary(new List<JsonDocument> { sroute });
                 if (closeStation == null)
                 {
@@ -153,8 +153,8 @@ namespace GPS_Server
             }
 
 
-            JsonDocument goToStation = await getRoute(startPos, closeStation.position, "foot-walking");
-            JsonDocument goToParis = await getRoute(closeStation.position, seine.position, "cycling-regular");
+            JsonDocument goToStation = getRoute(startPos, closeStation.position, "foot-walking");
+            JsonDocument goToParis = getRoute(closeStation.position, seine.position, "cycling-regular");
 
             Itinerary final = new Itinerary(new List<JsonDocument> { goToStation }, new List<JsonDocument> { goToParis });
 
@@ -250,7 +250,7 @@ namespace GPS_Server
 
 
             string jsonString = JsonSerializer.Serialize(bestRouteObj);
-            Console.WriteLine("[ORS] - Best Route found !!");
+            Console.WriteLine("[ORS] - Best Route found !");
             return JsonDocument.Parse(jsonString);
         }
 
@@ -292,14 +292,13 @@ namespace GPS_Server
                     {
                         Longitude = endPosition.longitude,
                         Latitude = endPosition.latitude
-                    }
+                    },
+                    Profile = profile
                 };
 
                 string json = JsonSerializer.Serialize(contextDto);
 
                 OrsResponse response = client.GetOrsResponse(json);
-
-                Console.Write(response.value);
 
                 return JsonDocument.Parse(response.value);
 
