@@ -18,5 +18,11 @@ namespace GPS_Server
             ResponseFormat = WebMessageFormat.Json)]
         string GetItinerary(string address1, string address2);
 
+
+        [OperationContract]
+        [WebGet(
+        UriTemplate = "/ThrowBikeSeine?start={address1}",
+        ResponseFormat = WebMessageFormat.Json)]
+        string ThrowBikeSeine(string address1);
     }
 }

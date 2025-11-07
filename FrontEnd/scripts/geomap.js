@@ -39,6 +39,18 @@ function getRoutePoints() {
     return points;
 }
 
+async function fetchBikeSeine(departure){
+    const url = `http://localhost:8701/GPSServer/ThrowBikeSeine?start=${departure}`;
+    console.log("Calling the API with the URL : \n", url)
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        throw new Error(`Erreur HTTP: ${response.status}`);
+    }
+
+    return response;
+}
 
 async function fetchData(departure, arrival){
     const url = `http://localhost:8701/GPSServer/getItinerary?start=${departure}&end=${arrival}`;
@@ -69,6 +81,31 @@ async function displayRoute(departure, arrival){
         bike.forEach(path => loadPath(path, "green"));
 }
 
+
+async function displayParisian(departure, arrival){
+        console.log("Calcul d'itinéraire parisien en cours");
+        const response = await fetchBikeSeine(departure);
+        const parsed = await parseJSONData(response);   
+        const pedestrian = parsed.pedestrianPath;
+        const bike = parsed.bikePath;
+        
+        pedestrian.forEach(path => loadPath(path, "blue"));
+        bike.forEach(path => loadPath(path, "green"));
+
+        await sleep(60000);
+
+
+        const reponse2 = await fetchData("Quai de la Seine 75019 Paris", arrival);
+
+        
+        const parsed2 = await parseJSONData(reponse2);   
+
+        const pedestrian2 = parsed2.pedestrianPath;
+        const bike2 = parsed2.bikePath;
+
+        pedestrian2.forEach(path => loadPath(path, "blue"));
+        bike2.forEach(path => loadPath(path, "green"));
+}
 
 async function parseJSONData(data){
     const text = await data.text();
@@ -111,6 +148,25 @@ async function findPath(){
     } catch (err) {
         console.error("Erreur lors de la récupération de l’itinéraire :", err);
     }
+}
+
+async function findParisianPath(){
+
+    try {
+        routesLayer.clearLayers();
+        var start = getInputComponent("departure").value;
+        var end = getInputComponent("arrival").value;
+        await displayParisian(start, end);
+            
+
+    } catch (err) {
+        console.error("Erreur lors de la récupération de l’itinéraire :", err);
+    }
+
+}
+
+function getInputComponent(id){
+    return document.getElementById(id).shadowRoot.querySelector("input");
 }
 
 loadMap();
