@@ -73,6 +73,9 @@ class RouteInput extends HTMLElement {
     
     async handleSearch() {
         this.setLoadingState(true);
+
+        this.dispatchRouteEvent('search-btn-pressed', "");
+
         
         const addresses = this.getAllAddresses();
         const parisianMode = this.parisianModeCheckbox.checked;
@@ -123,16 +126,17 @@ class RouteInput extends HTMLElement {
             var itin =  await this.fetchItinerary(start, end);
             this.dispatchRouteEvent('route-display', itin);
         }
-
+        else{
+ 
+            const firstLeg = await this.fetchItinerary(start, waypoint);
+            this.dispatchRouteEvent('route-display',firstLeg);
             
-        const firstLeg = await this.fetchItinerary(start, waypoint);
-        this.dispatchRouteEvent('route-display',firstLeg);
-        
-        //wait 15 seconds
-        await new Promise(resolve => setTimeout(resolve, 15000));
-        
-        const secondLeg = await this.fetchItinerary(waypoint, end);
-        this.dispatchRouteEvent('route-display', secondLeg);
+            //wait 15 seconds
+            await new Promise(resolve => setTimeout(resolve, 15000));
+            
+            const secondLeg = await this.fetchItinerary(waypoint, end);
+            this.dispatchRouteEvent('route-display', secondLeg);
+        }
     }
 
         async fetchItinerary(start, end) {

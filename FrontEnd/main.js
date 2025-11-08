@@ -11,27 +11,36 @@ sideBar.addEventListener('test-run', (e) => {
             break;
             
         case 'test-parisian':
-            routeInput.setAddresses('Toulouse, France', 'Lyon, France');
+            routeInput.setAddresses('2 rue job 31000 toulouse', '3 rue des orangers 34970 lattes');
             break;
     }
 });
 
+
+
+routeInput.addEventListener('search-btn-pressed', (e) =>{
+    map.clearPath();
+})
+
 routeInput.addEventListener('route-display', (e) => {
-    const geoJson = e.detail;
-    
-    console.log(geoJson)
-    parsed = parseJSONData(geoJson);
-    const pedestrian = parsed.pedestrianPath;
-    const bike = parsed.bikePath;
+    let geoJson = e.detail;
 
-    pedestrian.forEach(path => map.loadPath(path, "blue"));
-    bike.forEach(path => map.loadPath(path, "green"));
+    // Si c'est une string, on la parse
+    if (typeof geoJson === "string") {
+        try {
+            geoJson = JSON.parse(geoJson);
+        } catch(err) {
+            console.error("Erreur JSON.parse:", err, geoJson);
+            return;
+        }
+    }
 
+    const pedestrian = geoJson.pedestrianPath;
+    const bike = geoJson.bikePath;
 
+    console.log(pedestrian)
+    console.log(bike)
+
+    if (pedestrian) pedestrian.forEach(path => map.loadPath(path, "blue"));
+    if (bike) bike.forEach(path => map.loadPath(path, "green"));
 });
-
-async function parseJSONData(data){
-    const text = await data.text();
-    const geojson = JSON.parse(text)
-    return JSON.parse(geojson);
-}

@@ -14,34 +14,33 @@ class MapComponent extends HTMLElement {
             const width = this.offsetWidth;
             const height = this.offsetHeight;
             if (width > 0 && height > 0) {
-                // Initialize map WITHOUT default zoom control
-                this.map = L.map(this.mapContainer, {
-                    zoomControl: false
-                }).setView([48.8566, 2.3522], 13);
+                this.map = L.map(this.mapContainer, { zoomControl: false })
+                    .setView([48.8566, 2.3522], 13);
                 
-                // Add tile layer
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '© OpenStreetMap Contributors'
                 }).addTo(this.map);
                 
-                // Add zoom control in bottom right
-                L.control.zoom({
-                    position: 'bottomright'
-                }).addTo(this.map);
+                this.routesLayer = L.layerGroup().addTo(this.map);
+                
+                L.control.zoom({ position: 'bottomright' }).addTo(this.map);
             }
         });
     }
 
     loadPath(data, color) {
-    const itineraire = L.geoJSON(data, {
-      style: {
-        color: color,
-        weight: 4
-      }
-    }).addTo(routesLayer);
+        if (!this.map) return;
 
-    map.fitBounds(itineraire.getBounds());
-}
+        const itineraire = L.geoJSON(data, {
+            style: { color: color || 'blue', weight: 4 }
+        }).addTo(this.routesLayer);
+
+        this.map.fitBounds(itineraire.getBounds());
+    }
+
+    clearPath(){
+        this.routesLayer.clearLayers();
+    }
 
     async loadLeaflet() {
         if (!window.L) {
