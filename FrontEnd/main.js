@@ -7,12 +7,21 @@ sideBar.addEventListener('test-run', (e) => {
     const testId = e.detail.testId;
     switch(testId) {
         case 'test-complex':
-            routeInput.setAddresses('Toulouse, France', 'Montpellier, France', 'Lyon');
+            routeInput.setAddresses('2 Rue Job 31000 Toulouse', '4 Rue d’Emporion 34970 Lattes', '2 Passage des Antonins 69100 Villeurbanne');
+            routeInput.setParisianMode(false);
             break;
             
         case 'test-parisian':
-            routeInput.setAddresses('2 rue job 31000 toulouse', '3 rue des orangers 34970 lattes');
+            routeInput.setAddresses('2 Rue Job 31000 Toulouse', '3 rue des orangers 34970 lattes');
+            routeInput.setParisianMode(true);
+
             break;
+        
+        case 'test-basic':
+            routeInput.setAddresses('2 Rue Job 31000 Toulouse', "Rue du Rouergue 31100 Toulouse")
+            routeInput.setParisianMode(false);
+
+            break;        
     }
 });
 

@@ -3,17 +3,26 @@
     <div class="card">
         <div class="input-group">
             <label for="start">Adresse de départ</label>
-            <input type="text" id="start" placeholder="Entrez l'adresse de départ">
+            <div class="input-wrapper">
+                <input type="text" id="start" placeholder="Entrez l'adresse de départ" autocomplete="off">
+                <ul id="start-suggestions" class="suggestions"></ul>
+            </div>
         </div>
         
         <div class="input-group" id="waypoint-group" style="display: none;">
             <label for="waypoint">Étape</label>
-            <input type="text" id="waypoint" placeholder="Entrez l'adresse de l'étape">
+            <div class="input-wrapper">
+                <input type="text" id="waypoint" placeholder="Entrez l'adresse de l'étape" autocomplete="off">
+                <ul id="waypoint-suggestions" class="suggestions"></ul>
+            </div>
         </div>
         
         <div class="input-group">
             <label for="end">Adresse d'arrivée</label>
-            <input type="text" id="end" placeholder="Entrez l'adresse d'arrivée">
+            <div class="input-wrapper">
+                <input type="text" id="end" placeholder="Entrez l'adresse d'arrivée" autocomplete="off">
+                <ul id="end-suggestions" class="suggestions"></ul>
+            </div>
         </div>
         
         <div class="checkbox-group">
