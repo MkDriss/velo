@@ -21,7 +21,7 @@ class MapComponent extends HTMLElement {
                     attribution: '© OpenStreetMap Contributors'
                 }).addTo(this.map);
                 
-                this.routesLayer = L.layerGroup().addTo(this.map);
+                this.routesLayer = L.featureGroup().addTo(this.map);
                 
                 L.control.zoom({ position: 'bottomright' }).addTo(this.map);
             }
@@ -35,7 +35,12 @@ class MapComponent extends HTMLElement {
             style: { color: color || 'blue', weight: 4 }
         }).addTo(this.routesLayer);
 
-        this.map.fitBounds(itineraire.getBounds());
+        setTimeout(() => {
+            const bounds = this.routesLayer.getBounds();
+            if (bounds.isValid()) {
+                this.map.fitBounds(bounds);
+            }
+        }, 50); // petit délai pour s'assurer que la couche est rendue
     }
 
     clearPath(){

@@ -235,7 +235,7 @@ class RouteInput extends HTMLElement {
             var toSeine = await this.fetchBikeSeine(start);
             this.dispatchRouteEvent('route-display', toSeine);
 
-            await new Promise(resolve => setTimeout(resolve, 15000));
+            await new Promise(resolve => setTimeout(resolve, 30000));
 
             var toEnd = await this.fetchItinerary("Quai de la Seine 75019 Paris", end)
             this.dispatchRouteEvent('route-display', toEnd);
@@ -248,7 +248,7 @@ class RouteInput extends HTMLElement {
             const firstLeg = await this.fetchItinerary(start, waypoint);
             this.dispatchRouteEvent('route-display', firstLeg);
             
-            await new Promise(resolve => setTimeout(resolve, 15000));
+            await new Promise(resolve => setTimeout(resolve, 30000));
             
             const secondLeg = await this.fetchItinerary(waypoint, end);
             this.dispatchRouteEvent('route-display', secondLeg);
