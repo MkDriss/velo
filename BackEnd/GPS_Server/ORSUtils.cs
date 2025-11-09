@@ -27,7 +27,15 @@ namespace GPS_Server
         public async Task<JsonDocument> computeComplexItinerary(List<Station> allStations, Position startPos, Position endPos)
         {
             Itinerary itinerary = new Itinerary();
+            Console.WriteLine("JE SUI HERE");
+
+            JsonDocument walkGlobalRoute = getRoute(startPos, endPos, "foot-walking");
+            Itinerary walkItinerary = new Itinerary(new List<JsonDocument> { walkGlobalRoute });
+
+            Console.WriteLine($"TEMPS PIETON --- {walkItinerary.getDuration()}");
+
             await recursiveItinerary(startPos, endPos, itinerary, allStations);
+            Console.WriteLine($"TEMPS GPS: ---- {itinerary.getDuration()}");
             return CreateBestRouteJson(itinerary);          
         }
 
@@ -46,6 +54,7 @@ namespace GPS_Server
 
             Station bestEndStation = null;
             Itinerary bestItinerary = null;
+            double bestRouteDuration = double.MaxValue;
             double durationTime = double.MaxValue;
 
             foreach(Station closeStartStation in closestStations)
@@ -77,11 +86,11 @@ namespace GPS_Server
                 JsonDocument bikeRoute = getRoute(closeStartStation.position, endCurrentStation.position, "cycling-regular");
                 JsonDocument walkRoute2 = getRoute(endCurrentStation.position, endPosition, "foot-walking");
 
-                double routeDuration = getDuration(walkRoute1) + getDuration(bikeRoute) + getDuration(walkRoute2);
+                bestRouteDuration = getDuration(walkRoute1) + getDuration(bikeRoute) + getDuration(walkRoute2);
 
-                if(durationTime > routeDuration)
+                if(durationTime > bestRouteDuration)
                 {
-                    durationTime = routeDuration;
+                    durationTime = bestRouteDuration;
                     bestEndStation = endCurrentStation;
                     bestItinerary = new Itinerary(new List<JsonDocument> { walkRoute1 }, new List<JsonDocument> { bikeRoute } );
    
@@ -98,7 +107,7 @@ namespace GPS_Server
             }
 
 
-            if (bestItinerary.getDuration() < walkItinerary.getDuration())
+            if (bestRouteDuration < walkItinerary.getDuration())
             {
                 itinerary.add(bestItinerary);
 
