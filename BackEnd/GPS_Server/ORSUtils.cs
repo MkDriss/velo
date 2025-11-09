@@ -98,7 +98,7 @@ namespace GPS_Server
             }
 
 
-            if (bestItinerary.getDuration() < walkItinerary.getDuration())
+            if (durationTime < walkItinerary.getDuration())
             {
                 itinerary.add(bestItinerary);
 
