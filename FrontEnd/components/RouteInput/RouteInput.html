@@ -1,0 +1,42 @@
+<template>
+    <link rel="stylesheet" href="./components/RouteInput/RouteInput.css">
+    <div class="card">
+        <div class="input-group">
+            <label for="start">Adresse de départ</label>
+            <div class="input-wrapper">
+                <input type="text" id="start" placeholder="Entrez l'adresse de départ" autocomplete="off">
+                <ul id="start-suggestions" class="suggestions"></ul>
+            </div>
+        </div>
+        
+        <div class="input-group" id="waypoint-group" style="display: none;">
+            <label for="waypoint">Étape</label>
+            <div class="input-wrapper">
+                <input type="text" id="waypoint" placeholder="Entrez l'adresse de l'étape" autocomplete="off">
+                <ul id="waypoint-suggestions" class="suggestions"></ul>
+            </div>
+        </div>
+        
+        <div class="input-group">
+            <label for="end">Adresse d'arrivée</label>
+            <div class="input-wrapper">
+                <input type="text" id="end" placeholder="Entrez l'adresse d'arrivée" autocomplete="off">
+                <ul id="end-suggestions" class="suggestions"></ul>
+            </div>
+        </div>
+        
+        <div class="checkbox-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="parisian-mode">
+                <span class="checkbox-text">Mode Parisien</span>
+            </label>
+        </div>
+        
+        <button type="button" id="add-waypoint">+ Ajouter une étape</button>
+        
+        <button type="button" id="search-button">
+            <span class="button-text">Rechercher</span>
+            <span class="loader" style="display: none;"></span>
+        </button>
+    </div>
+</template>
