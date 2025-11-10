@@ -241,17 +241,19 @@ class RouteInput extends HTMLElement {
             this.dispatchRouteEvent('route-display', toEnd);
         }
         
-        if (!waypoint) {
-            var itin = await this.fetchItinerary(start, end);
-            this.dispatchRouteEvent('route-display', itin);
-        } else {
-            const firstLeg = await this.fetchItinerary(start, waypoint);
-            this.dispatchRouteEvent('route-display', firstLeg);
-            
-            await new Promise(resolve => setTimeout(resolve, 30000));
-            
-            const secondLeg = await this.fetchItinerary(waypoint, end);
-            this.dispatchRouteEvent('route-display', secondLeg);
+        else{
+            if (!waypoint) {
+                var itin = await this.fetchItinerary(start, end);
+                this.dispatchRouteEvent('route-display', itin);
+            } else {
+                const firstLeg = await this.fetchItinerary(start, waypoint);
+                this.dispatchRouteEvent('route-display', firstLeg);
+                
+                await new Promise(resolve => setTimeout(resolve, 30000));
+                
+                const secondLeg = await this.fetchItinerary(waypoint, end);
+                this.dispatchRouteEvent('route-display', secondLeg);
+            }
         }
     }
 
