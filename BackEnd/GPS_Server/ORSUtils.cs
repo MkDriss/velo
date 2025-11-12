@@ -131,43 +131,45 @@ namespace GPS_Server
 
         public JsonDocument computeThrowBikeSeine(List<Station> allStations, Position startPos)
         {
-            Address seine = new Address("Quai de la Seine 75019 Paris");
-
-            List<Station> closestStations = findHaversineClosestStation(startPos, seine.position, allStations, 2);
-
-            Station closeStation = null;
-            double closeDistance = double.MaxValue;
-            Itinerary bestItin = null;
-
-            foreach (Station s in closestStations)
+            using (var client = new ProxyCacheClient())
             {
-                JsonDocument sroute = getRoute(startPos, s.position, "foot-walking");
-                Itinerary sitin = new Itinerary(new List<JsonDocument> { sroute });
-                if (closeStation == null)
+                Address seine = client.GetAddressCoordinates("Quai de la Seine 75019 Paris");
+
+                List<Station> closestStations = findHaversineClosestStation(startPos, seine.position, allStations, 2);
+
+                Station closeStation = null;
+                double closeDistance = double.MaxValue;
+                Itinerary bestItin = null;
+
+                foreach (Station s in closestStations)
                 {
-                    closeDistance = sitin.getDuration();
-                    closeStation = s;
-                    bestItin = sitin;
-                }
-                else
-                {
-                    if (sitin.getDuration() < closeDistance)
+                    JsonDocument sroute = getRoute(startPos, s.position, "foot-walking");
+                    Itinerary sitin = new Itinerary(new List<JsonDocument> { sroute });
+                    if (closeStation == null)
                     {
                         closeDistance = sitin.getDuration();
                         closeStation = s;
                         bestItin = sitin;
                     }
+                    else
+                    {
+                        if (sitin.getDuration() < closeDistance)
+                        {
+                            closeDistance = sitin.getDuration();
+                            closeStation = s;
+                            bestItin = sitin;
+                        }
+                    }
                 }
+
+
+                JsonDocument goToStation = getRoute(startPos, closeStation.position, "foot-walking");
+                JsonDocument goToParis = getRoute(closeStation.position, seine.position, "cycling-regular");
+
+                Itinerary final = new Itinerary(new List<JsonDocument> { goToStation }, new List<JsonDocument> { goToParis });
+
+                return CreateBestRouteJson(final);
             }
-
-
-            JsonDocument goToStation = getRoute(startPos, closeStation.position, "foot-walking");
-            JsonDocument goToParis = getRoute(closeStation.position, seine.position, "cycling-regular");
-
-            Itinerary final = new Itinerary(new List<JsonDocument> { goToStation }, new List<JsonDocument> { goToParis });
-
-            return CreateBestRouteJson(final);
-
         }
         private List<Station> findHaversineClosestStation(Position startPos, Position endPos, List<Station> allStations, int precision)
         {

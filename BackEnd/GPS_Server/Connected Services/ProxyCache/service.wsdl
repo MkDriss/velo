@@ -31,6 +31,12 @@
   <wsdl:message name="IProxyCache_GetOrsResponse_OutputMessage">
     <wsdl:part name="parameters" element="tns:GetOrsResponseResponse" />
   </wsdl:message>
+  <wsdl:message name="IProxyCache_GetAddressCoordinates_InputMessage">
+    <wsdl:part name="parameters" element="tns:GetAddressCoordinates" />
+  </wsdl:message>
+  <wsdl:message name="IProxyCache_GetAddressCoordinates_OutputMessage">
+    <wsdl:part name="parameters" element="tns:GetAddressCoordinatesResponse" />
+  </wsdl:message>
   <wsdl:portType name="IProxyCache">
     <wsdl:operation name="GetStations">
       <wsdl:input wsaw:Action="http://tempuri.org/IProxyCache/GetStations" message="tns:IProxyCache_GetStations_InputMessage" />
@@ -47,6 +53,10 @@
     <wsdl:operation name="GetOrsResponse">
       <wsdl:input wsaw:Action="http://tempuri.org/IProxyCache/GetOrsResponse" message="tns:IProxyCache_GetOrsResponse_InputMessage" />
       <wsdl:output wsaw:Action="http://tempuri.org/IProxyCache/GetOrsResponseResponse" message="tns:IProxyCache_GetOrsResponse_OutputMessage" />
+    </wsdl:operation>
+    <wsdl:operation name="GetAddressCoordinates">
+      <wsdl:input wsaw:Action="http://tempuri.org/IProxyCache/GetAddressCoordinates" message="tns:IProxyCache_GetAddressCoordinates_InputMessage" />
+      <wsdl:output wsaw:Action="http://tempuri.org/IProxyCache/GetAddressCoordinatesResponse" message="tns:IProxyCache_GetAddressCoordinates_OutputMessage" />
     </wsdl:operation>
   </wsdl:portType>
   <wsdl:binding name="BasicHttpBinding_IProxyCache" type="tns:IProxyCache">
@@ -80,6 +90,15 @@
     </wsdl:operation>
     <wsdl:operation name="GetOrsResponse">
       <soap:operation soapAction="http://tempuri.org/IProxyCache/GetOrsResponse" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetAddressCoordinates">
+      <soap:operation soapAction="http://tempuri.org/IProxyCache/GetAddressCoordinates" style="document" />
       <wsdl:input>
         <soap:body use="literal" />
       </wsdl:input>

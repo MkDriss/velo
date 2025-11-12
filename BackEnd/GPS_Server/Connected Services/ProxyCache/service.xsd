@@ -55,4 +55,18 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+  <xs:element name="GetAddressCoordinates">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" name="address" nillable="true" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+  <xs:element name="GetAddressCoordinatesResponse">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element xmlns:q4="http://schemas.datacontract.org/2004/07/Proxy" minOccurs="0" name="GetAddressCoordinatesResult" nillable="true" type="q4:Address" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
 </xs:schema>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.ServiceModel;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,6 +13,7 @@ namespace Proxy
         private static GenericProxyCache stationsCache = new GenericProxyCache("stationsCache");
         private static GenericProxyCache contractCache = new GenericProxyCache("contractCache");
         private static GenericProxyCache orsCache = new GenericProxyCache("itineraryCache");
+        private static GenericProxyCache addressCache = new GenericProxyCache("Address");
 
         public Stations GetStations(string contract)
         {
@@ -60,6 +62,13 @@ namespace Proxy
 
             return orsCache.Get<OrsResponse>(ors, 86400.0); // 24h de délais
             
+        }
+
+        public Address GetAddressCoordinates(string address)
+        {
+            if (string.IsNullOrEmpty(address)) return null;
+
+            return addressCache.Get<Address>(address);
         }
     }
 }

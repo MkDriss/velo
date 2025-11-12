@@ -1,18 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Runtime.Serialization;
-using System.Security.Cryptography.X509Certificates;
-using System.ServiceModel;
 using System.ServiceModel.Web;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
 using GPS_Server.ProxyCache;
+
 
 namespace GPS_Server
 {
@@ -21,48 +12,51 @@ namespace GPS_Server
 	{
         public string GetItinerary(string address1, string address2)
         {
-
-            AddCorsHeaders();
-
-            Console.WriteLine($"[GPS] - Calcul d'itinérarire entre {address1} et {address2}");
-
-            Address start = new Address(address1);
-            Address end = new Address(address2);
-
-            
-            string startContract = JCDecauxUtils.getContract(start.City);
-            string endContract = JCDecauxUtils.getContract(end.City);
-
-            // Si les deux villes sont dans le même contract
-            if (startContract == endContract && startContract != null)
+            using (var client = new ProxyCacheClient())
             {
-                Console.WriteLine("[GPS] - Meme contract");
-                Stations stations = JCDecauxUtils.getStations(startContract);
 
-                int precisionStation = 2;
-                Console.WriteLine("[GPS] - Start Finding ClosestStations");
-                List<Station> startClosestStation = findClosestStations(stations, start.position, precisionStation, true);
-                List<Station> endClosestStation = findClosestStations(stations, end.position, precisionStation, false);
+                AddCorsHeaders();
 
-                Console.WriteLine("[GPS] - End Finding ClosestStations");
+                Console.WriteLine($"[GPS] - Calcul d'itinérarire entre {address1} et {address2}");
 
-                ORSUtils ORS = new ORSUtils();
+                Address start = client.GetAddressCoordinates(address1);
+                Address end = client.GetAddressCoordinates(address2);
 
-                Console.WriteLine("[GPS] - Compute Itinerary");
 
-                return ORS.computeBestItinerary(startClosestStation, endClosestStation, start.position, end.position).RootElement.GetRawText();
+                string startContract = JCDecauxUtils.getContract(start.City);
+                string endContract = JCDecauxUtils.getContract(end.City);
 
-            }
+                // Si les deux villes sont dans le même contract
+                if (startContract == endContract && startContract != null)
+                {
+                    Console.WriteLine("[GPS] - Meme contract");
+                    Stations stations = JCDecauxUtils.getStations(startContract);
 
-            else
-            {
-                Console.WriteLine("[GPS] - Contract différent");
-                Stations stations = JCDecauxUtils.getAllStations();
+                    int precisionStation = 2;
+                    Console.WriteLine("[GPS] - Start Finding ClosestStations");
+                    List<Station> startClosestStation = findClosestStations(stations, start.position, precisionStation, true);
+                    List<Station> endClosestStation = findClosestStations(stations, end.position, precisionStation, false);
 
-                ORSUtils ORS = new ORSUtils();
+                    Console.WriteLine("[GPS] - End Finding ClosestStations");
 
-                return ORS.computeComplexItinerary(stations.stations.ToList(), start.position, end.position).GetAwaiter().GetResult().RootElement.GetRawText();
+                    ORSUtils ORS = new ORSUtils();
 
+                    Console.WriteLine("[GPS] - Compute Itinerary");
+
+                    return ORS.computeBestItinerary(startClosestStation, endClosestStation, start.position, end.position).RootElement.GetRawText();
+
+                }
+
+                else
+                {
+                    Console.WriteLine("[GPS] - Contract différent");
+                    Stations stations = JCDecauxUtils.getAllStations();
+
+                    ORSUtils ORS = new ORSUtils();
+
+                    return ORS.computeComplexItinerary(stations.stations.ToList(), start.position, end.position).GetAwaiter().GetResult().RootElement.GetRawText();
+
+                } 
             }
         }
 
@@ -101,18 +95,20 @@ namespace GPS_Server
 
         public string ThrowBikeSeine(string address1)
         {
-            AddCorsHeaders();
+            using (var client = new ProxyCacheClient())
+            {
+                AddCorsHeaders();
 
-            Console.WriteLine($"[GPS] -  Balancer velo dans la seine depuis : {address1}");
-            Stations stations = JCDecauxUtils.getAllStations();
+                Console.WriteLine($"[GPS] -  Balancer velo dans la seine depuis : {address1}");
+                Stations stations = JCDecauxUtils.getAllStations();
 
-            Address start = new Address(address1);
+                Address start = client.GetAddressCoordinates(address1);
 
-            ORSUtils ORS = new ORSUtils();
+                ORSUtils ORS = new ORSUtils();
 
-            return ORS.computeThrowBikeSeine(stations.stations.ToList(), start.position).RootElement.GetRawText();
+                return ORS.computeThrowBikeSeine(stations.stations.ToList(), start.position).RootElement.GetRawText();
 
-
+            }
         }
 
         private void AddCorsHeaders()

@@ -134,6 +134,7 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Address.cs" />
     <Compile Include="ApiKeys.cs" />
     <Compile Include="IGenericProxyCache.cs" />
     <Compile Include="Contract.cs" />
