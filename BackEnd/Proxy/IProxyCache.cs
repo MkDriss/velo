@@ -26,6 +26,6 @@ namespace Proxy
 
         [OperationContract]
         Address GetAddressCoordinates(string address);
-        
+
     }
 }

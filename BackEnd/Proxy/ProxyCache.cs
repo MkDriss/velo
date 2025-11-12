@@ -68,7 +68,7 @@ namespace Proxy
         {
             if (string.IsNullOrEmpty(address)) return null;
 
-            return addressCache.Get<Address>(address);
+            return addressCache.Get<Address>(address, DateTimeOffset.Now.AddYears(1));
         }
     }
 }

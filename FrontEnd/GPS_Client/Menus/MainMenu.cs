@@ -6,7 +6,7 @@ namespace GPS_Client.Menus
     {
         private const string MAIN_MENU_TITLE = """
 #######################################
-#####     Bienvenue sur Velo !     #####
+#####     Bienvenue sur Velo !     ####
 #######################################
 
 """;
