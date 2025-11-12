@@ -7,7 +7,7 @@ sideBar.addEventListener('test-run', (e) => {
     const testId = e.detail.testId;
     switch(testId) {
         case 'test-complex':
-            routeInput.setAddresses('2 Rue Job 31000 Toulouse', '2 Passage des Antonins 69100 Villeurbanne', '4 Rue d’Emporion 34970 Lattes');
+            routeInput.setAddresses( '2 Passage des Antonins 69100 Villeurbanne', '2 Rue Job 31000 Toulouse', '4 Rue d’Emporion 34970 Lattes');
             routeInput.setParisianMode(false);
             break;
             

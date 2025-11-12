@@ -5,6 +5,7 @@ using System.Net.Http;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Proxy
@@ -23,7 +24,7 @@ namespace Proxy
 
         async Task requestOrsResponse(OrsContextDto context)
         {
-
+            Thread.Sleep(2000);
             string url = $"https://api.openrouteservice.org/v2/directions/{context.Profile}/geojson";
 
             var body = new
