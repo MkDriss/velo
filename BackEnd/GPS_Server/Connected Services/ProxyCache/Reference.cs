@@ -260,6 +260,99 @@ namespace GPS_Server.ProxyCache {
         }
     }
     
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Runtime.Serialization", "4.0.0.0")]
+    [System.Runtime.Serialization.DataContractAttribute(Name="Address", Namespace="http://schemas.datacontract.org/2004/07/Proxy")]
+    [System.SerializableAttribute()]
+    public partial class Address : object, System.Runtime.Serialization.IExtensibleDataObject, System.ComponentModel.INotifyPropertyChanged {
+        
+        [System.NonSerializedAttribute()]
+        private System.Runtime.Serialization.ExtensionDataObject extensionDataField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string CityField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private int PostalCodeField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private string StreetAddressField;
+        
+        [System.Runtime.Serialization.OptionalFieldAttribute()]
+        private GPS_Server.ProxyCache.Position positionField;
+        
+        [global::System.ComponentModel.BrowsableAttribute(false)]
+        public System.Runtime.Serialization.ExtensionDataObject ExtensionData {
+            get {
+                return this.extensionDataField;
+            }
+            set {
+                this.extensionDataField = value;
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string City {
+            get {
+                return this.CityField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.CityField, value) != true)) {
+                    this.CityField = value;
+                    this.RaisePropertyChanged("City");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public int PostalCode {
+            get {
+                return this.PostalCodeField;
+            }
+            set {
+                if ((this.PostalCodeField.Equals(value) != true)) {
+                    this.PostalCodeField = value;
+                    this.RaisePropertyChanged("PostalCode");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public string StreetAddress {
+            get {
+                return this.StreetAddressField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.StreetAddressField, value) != true)) {
+                    this.StreetAddressField = value;
+                    this.RaisePropertyChanged("StreetAddress");
+                }
+            }
+        }
+        
+        [System.Runtime.Serialization.DataMemberAttribute()]
+        public GPS_Server.ProxyCache.Position position {
+            get {
+                return this.positionField;
+            }
+            set {
+                if ((object.ReferenceEquals(this.positionField, value) != true)) {
+                    this.positionField = value;
+                    this.RaisePropertyChanged("position");
+                }
+            }
+        }
+        
+        public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
+        
+        protected void RaisePropertyChanged(string propertyName) {
+            System.ComponentModel.PropertyChangedEventHandler propertyChanged = this.PropertyChanged;
+            if ((propertyChanged != null)) {
+                propertyChanged(this, new System.ComponentModel.PropertyChangedEventArgs(propertyName));
+            }
+        }
+    }
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
     [System.ServiceModel.ServiceContractAttribute(ConfigurationName="ProxyCache.IProxyCache")]
     public interface IProxyCache {
@@ -287,6 +380,12 @@ namespace GPS_Server.ProxyCache {
         
         [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IProxyCache/GetOrsResponse", ReplyAction="http://tempuri.org/IProxyCache/GetOrsResponseResponse")]
         System.Threading.Tasks.Task<Proxy.OrsResponse> GetOrsResponseAsync(string ors);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IProxyCache/GetAddressCoordinates", ReplyAction="http://tempuri.org/IProxyCache/GetAddressCoordinatesResponse")]
+        GPS_Server.ProxyCache.Address GetAddressCoordinates(string address);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://tempuri.org/IProxyCache/GetAddressCoordinates", ReplyAction="http://tempuri.org/IProxyCache/GetAddressCoordinatesResponse")]
+        System.Threading.Tasks.Task<GPS_Server.ProxyCache.Address> GetAddressCoordinatesAsync(string address);
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
@@ -346,6 +445,14 @@ namespace GPS_Server.ProxyCache {
         
         public System.Threading.Tasks.Task<Proxy.OrsResponse> GetOrsResponseAsync(string ors) {
             return base.Channel.GetOrsResponseAsync(ors);
+        }
+        
+        public GPS_Server.ProxyCache.Address GetAddressCoordinates(string address) {
+            return base.Channel.GetAddressCoordinates(address);
+        }
+        
+        public System.Threading.Tasks.Task<GPS_Server.ProxyCache.Address> GetAddressCoordinatesAsync(string address) {
+            return base.Channel.GetAddressCoordinatesAsync(address);
         }
     }
 }

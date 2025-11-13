@@ -1,20 +1,29 @@
-﻿using GPS_Server.ProxyCache;
-using System;
+﻿using System;
 using System.Globalization;
 using System.Linq;
 using System.Net.Http;
+using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace GPS_Server
+namespace Proxy
 {
+    [DataContract]
     class Address
     {
+        [DataMember] 
         public string City;        // Exemple : Marseille
+        
+        [DataMember] 
         public int PostalCode;    // Exemple : 13000
+        
+        [DataMember] 
         public string StreetAddress; // Exemple : 2 rue des lilas
+
+        [DataMember]
         public Position position;
 
+   
         public Address(string addressInput)
         {
 
@@ -41,6 +50,9 @@ namespace GPS_Server
             Console.WriteLine($"Latitude : {position.latitude}");
             Console.WriteLine($"Longitude : {position.longitude}\n");
         }
+
+        public Address() { }
+
 
         private async Task FetchCoordinates(string address)
         {

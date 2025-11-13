@@ -23,6 +23,9 @@ namespace Proxy
 
         [OperationContract]
         OrsResponse GetOrsResponse(string ors);
-        
+
+        [OperationContract]
+        Address GetAddressCoordinates(string address);
+
     }
 }
