@@ -12,6 +12,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Proxy", "Proxy\Proxy.csproj
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GPS_Client", "..\FrontEnd\GPS_Client\GPS_Client.csproj", "{53024ECD-7D0E-E8D1-3939-E4E775F0C3CF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Weather_Producer", "Weather_Producer\Weather_Producer.csproj", "{C2E984F7-B130-4625-8AEE-4A80A1E652DC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,6 +32,10 @@ Global
 		{53024ECD-7D0E-E8D1-3939-E4E775F0C3CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{53024ECD-7D0E-E8D1-3939-E4E775F0C3CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{53024ECD-7D0E-E8D1-3939-E4E775F0C3CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C2E984F7-B130-4625-8AEE-4A80A1E652DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2E984F7-B130-4625-8AEE-4A80A1E652DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2E984F7-B130-4625-8AEE-4A80A1E652DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2E984F7-B130-4625-8AEE-4A80A1E652DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
