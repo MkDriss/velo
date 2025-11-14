@@ -10,50 +10,65 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 
+import java.util.Scanner;
+
 public class App {
     public static void main(String[] args) {
-        // URL du broker ActiveMQ (exemple : broker local)
         String brokerURL = "tcp://localhost:61616";
-
-        // Nom de la queue
         String queueName = "weather";
 
         Connection connection = null;
 
         try {
-            // 1. Créer la factory de connexion
             ConnectionFactory factory = new ActiveMQConnectionFactory(brokerURL);
-
-            // 2. Créer la connexion
             connection = factory.createConnection();
             connection.start();
 
-            // 3. Créer une session
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
-            // 4. Créer la queue
             Queue queue = session.createQueue(queueName);
 
-            // 5. Créer le producteur
             MessageProducer producer = session.createProducer(queue);
             producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
 
-            // 6. Créer un message texte
-            TextMessage message = session.createTextMessage("Hello Weather!");
+            Scanner scanner = new Scanner(System.in);
+            String userinput = "";
 
-            // 7. Envoyer le message
-            producer.send(message);
-            System.out.println("Message envoyé : " + message.getText());
+            while (!userinput.equals("0")) {
+                System.out.println("Tape 1 pour 'sun', 2 pour 'cloud', 0 pour quitter : ");
+                userinput = scanner.nextLine();
 
-            // 8. Fermer la session et la connexion
+                String payload = null;
+
+                switch (userinput) {
+                    case "1":
+                        payload = "sun";
+                        break;
+                    case "2":
+                        payload = "cloud";
+                        break;
+                    case "0":
+                        System.out.println("Fermeture...");
+                        break;
+                    default:
+                        System.out.println("Choix invalide !");
+                        break;
+                }
+
+                if (payload != null) {
+                    TextMessage msg = session.createTextMessage(payload);
+                    producer.send(msg);
+                    System.out.println("Message envoyé : " + payload);
+                }
+            }
+
             session.close();
             connection.close();
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            try {
-                if (connection != null) connection.close();
-            } catch (Exception ignore) {}
+            try { if (connection != null) connection.close(); }
+            catch (Exception ignore) {}
         }
     }
 }
