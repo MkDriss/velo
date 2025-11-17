@@ -129,6 +129,13 @@ namespace GPS_Server
         }
 
 
+        public JsonDocument getWalkingRoute(Address start, Address end)
+        {
+            Itinerary final = new Itinerary(new List<JsonDocument> { getRoute(start.position, end.position, "foot-walking") });
+            return CreateBestRouteJson(final);
+        }
+
+
         public JsonDocument computeThrowBikeSeine(List<Station> allStations, Position startPos)
         {
             using (var client = new ProxyCacheClient())
@@ -171,6 +178,8 @@ namespace GPS_Server
                 return CreateBestRouteJson(final);
             }
         }
+
+
         private List<Station> findHaversineClosestStation(Position startPos, Position endPos, List<Station> allStations, int precision)
         {
             var stationsWithDistance = new List<(Station station, double distance)>();

@@ -7,6 +7,12 @@ class RouteInput extends HTMLElement {
             waypoint: null
         };
         this.attachShadow({ mode: 'open' });
+        this.weather = "";
+    }
+
+
+    setWeather(message){
+        this.weather = message;
     }
     
     async connectedCallback() {
@@ -230,29 +236,58 @@ class RouteInput extends HTMLElement {
 
     async fetchRoute(addresses, parisianMode) {
         const { start, end, waypoint } = addresses;
-        
-        if (parisianMode) {
-            var toSeine = await this.fetchBikeSeine(start);
-            this.dispatchRouteEvent('route-display', toSeine);
 
-
-            var toEnd = await this.fetchItinerary("Quai de la Seine 75019 Paris", end)
-            this.dispatchRouteEvent('route-display', toEnd);
-        }
-        
-        else{
-            if (!waypoint) {
-                var itin = await this.fetchItinerary(start, end);
-                this.dispatchRouteEvent('route-display', itin);
-            } else {
-                const firstLeg = await this.fetchItinerary(start, waypoint);
+        if(this.weather === "cloud"){
+            alert("Attention : conditions météorologiques difficiles (pluie). Soyez prudent lors de votre trajet !");
+            if(!waypoint){
+                var walk = await this.fetchWalk(start, end);
+                this.dispatchRouteEvent('route-display', walk);
+            }
+            else{
+                const firstLeg = await this.fetchWalk(start, waypoint);
                 this.dispatchRouteEvent('route-display', firstLeg);
-                                
-                const secondLeg = await this.fetchItinerary(waypoint, end);
+                const secondLeg = await this.fetchWalk(waypoint, end);
                 this.dispatchRouteEvent('route-display', secondLeg);
             }
         }
+        else{
+            
+            if (parisianMode) {
+                var toSeine = await this.fetchBikeSeine(start);
+                this.dispatchRouteEvent('route-display', toSeine);
+
+
+                var toEnd = await this.fetchItinerary("Quai de la Seine 75019 Paris", end)
+                this.dispatchRouteEvent('route-display', toEnd);
+            }
+            
+            else{
+                if (!waypoint) {
+                    var itin = await this.fetchItinerary(start, end);
+                    this.dispatchRouteEvent('route-display', itin);
+                } else {
+                    const firstLeg = await this.fetchItinerary(start, waypoint);
+                    this.dispatchRouteEvent('route-display', firstLeg);
+                                    
+                    const secondLeg = await this.fetchItinerary(waypoint, end);
+                    this.dispatchRouteEvent('route-display', secondLeg);
+                }
+            }
+        }
     }
+
+    async fetchWalk(start, end) {
+        const url = `http://localhost:8701/GPSServer/rest/getWalk?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`;
+        console.log("Calling the API with the URL:\n", url);
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+        return await response.json();
+    }
+
+
 
     async fetchItinerary(start, end) {
         const url = `http://localhost:8701/GPSServer/rest/getItinerary?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`;

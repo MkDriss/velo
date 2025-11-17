@@ -37,6 +37,13 @@ route-input {
     z-index: 1000;
 }
 
+weather-mq {
+    position: absolute;
+    bottom: 24px;
+    left: 24px;
+    width: 140px;
+    z-index: 1000;
+}
 /* Map positioning */
 map-custom {
     flex: 1;

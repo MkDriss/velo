@@ -2,6 +2,7 @@
 const routeInput = document.querySelector('route-input');
 const sideBar = document.querySelector('side-bar');
 const map = document.querySelector('map-custom');
+const weatherMQ = document.querySelector('weather-mq');
 
 sideBar.addEventListener('test-run', (e) => {
     const testId = e.detail.testId;
@@ -25,11 +26,20 @@ sideBar.addEventListener('test-run', (e) => {
     }
 });
 
+weatherMQ.addEventListener('weather-message', (e) => {
+    console.log("Nouveau message météo reçu dans main.js :", e.detail.body);
+    routeInput.setWeather(e.detail.body);
+});
+
 
 
 routeInput.addEventListener('search-btn-pressed', (e) =>{
     map.clearPath();
 })
+
+
+
+
 
 routeInput.addEventListener('route-display', (e) => {
     let geoJson = e.detail;

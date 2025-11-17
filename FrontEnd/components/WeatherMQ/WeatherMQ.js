@@ -3,12 +3,36 @@ import { Client } from 'https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/+esm';
 class __WeatherMQ__ extends HTMLElement {
     constructor() {
         super();
-        this.queue = "weather";
+        this.queue = "weatherQueueVelo";
         this.client = null;
+        this.attachShadow({ mode: "open" });
+        this.message = "";
     }
     
-    connectedCallback() {
+    async connectedCallback() {
+        
+    // fetch le fichier HTML
+    const response = await fetch("./components/WeatherMQ/WeatherMQ.html");
+    const content = await response.text();
+
+    // parser et récupérer le template
+    const templateContent = new DOMParser()
+        .parseFromString(content, "text/html")
+        .querySelector("template").content;
+
+    // injecter dans le shadow DOM
+    this.shadowRoot.appendChild(templateContent.cloneNode(true));
+
+    // Références DOM
+    this.icon = this.shadowRoot.getElementById("icon");
+    this.label = this.shadowRoot.getElementById("label");
+
+        // Références DOM
+        this.icon = this.shadowRoot.getElementById("icon");
+        this.label = this.shadowRoot.getElementById("label");
+        
         this.startConsumer();
+
     }
     
     startConsumer() {
@@ -19,8 +43,8 @@ class __WeatherMQ__ extends HTMLElement {
                 console.log(`[WeatherMQ] Connecté à ActiveMQ — Queue: ${this.queue}`);
                 this.client.subscribe(`/queue/${this.queue}`, (msg) => {
                     console.log("[WeatherMQ] Message reçu :", msg.body);
-                    
-                    // Dispatch a custom event with the message data
+                    this.updateWeather(msg.body);
+                    this.message = msg.body;                    
                     this.dispatchEvent(new CustomEvent('weather-message', {
                         detail: { body: msg.body },
                         bubbles: true,
@@ -30,10 +54,24 @@ class __WeatherMQ__ extends HTMLElement {
             },
             onStompError: (frame) => {
                 console.error("[WeatherMQ] Erreur STOMP :", frame.headers['message']);
-                console.error("[WeatherMQ] Détails :", frame.body);
             }
         });
         this.client.activate();
+    }
+    
+    updateWeather(message) {
+        if(message === "sun"){
+            this.label.textContent = "Soleil";
+            this.icon.innerHTML = '<img src="./assets/icons/sun.png" alt="Soleil" style="width: 48px; height: 48px;">';
+        }
+        else if(message === "cloud"){
+            this.label.textContent = "Pluie";
+            this.icon.innerHTML = '<img src="./assets/icons/rain.png" alt="Pluie" style="width: 48px; height: 48px;">';
+        }
+        else{
+            this.label.textContent = "...";
+            this.icon.innerHTML = '';
+        }
     }
     
     disconnectedCallback() {
@@ -42,6 +80,7 @@ class __WeatherMQ__ extends HTMLElement {
             console.log("[WeatherMQ] Déconnecté.");
         }
     }
+
 }
 
 customElements.define('weather-mq', __WeatherMQ__);

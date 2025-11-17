@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.ServiceModel.Web;
+using System.Text.Json;
 using GPS_Server.ProxyCache;
 
 
@@ -109,6 +110,26 @@ namespace GPS_Server
                 return ORS.computeThrowBikeSeine(stations.stations.ToList(), start.position).RootElement.GetRawText();
 
             }
+        }
+
+        public string GetWalk(string address1, string address2)
+        {
+            using (var client = new ProxyCacheClient())
+            {
+                AddCorsHeaders();
+
+                Console.WriteLine($"[GPS] - Itinéraire à pied entre : {address1} et {address2}");
+                Stations stations = JCDecauxUtils.getAllStations();
+
+                Address start = client.GetAddressCoordinates(address1);
+                Address end = client.GetAddressCoordinates(address2);
+
+                ORSUtils ORS = new ORSUtils();
+                 
+
+                return ORS.getWalkingRoute(start, end).RootElement.GetRawText();
+            }
+
         }
 
         private void AddCorsHeaders()

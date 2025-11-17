@@ -11,30 +11,28 @@ namespace Proxy
     [DataContract]
     class Address
     {
-        [DataMember] 
+        [DataMember]
         public string City;        // Exemple : Marseille
-        
-        [DataMember] 
+
+        [DataMember]
         public int PostalCode;    // Exemple : 13000
-        
-        [DataMember] 
+
+        [DataMember]
         public string StreetAddress; // Exemple : 2 rue des lilas
 
         [DataMember]
         public Position position;
 
-   
+
+        private static readonly HttpClient client = new HttpClient();
+
         public Address(string addressInput)
         {
-
-            Console.WriteLine("===== Creation d'une addresse =====");
+            Console.WriteLine("===== Création d'une adresse =====");
             string[] parts = addressInput.Split(' ');
 
-            // Le code postal est l’avant-dernier élément
             string codePostal = parts[parts.Length - 2];
             string ville = parts[parts.Length - 1];
-
-            // L'adresse correspond au reste
             string adresse = string.Join(" ", parts.Take(parts.Length - 2));
 
             StreetAddress = adresse;
@@ -45,54 +43,67 @@ namespace Proxy
             Console.WriteLine($"Code postal : {PostalCode}");
             Console.WriteLine($"Ville : {City}");
 
-            Task.Run(async () => await FetchCoordinates(addressInput)).Wait();
+            // Récupération des coordonnées
+            Task.Run(async () => await FetchCoordinatesORS(addressInput)).Wait();
 
-            Console.WriteLine($"Latitude : {position.latitude}");
-            Console.WriteLine($"Longitude : {position.longitude}\n");
+            if (position != null)
+            {
+                Console.WriteLine($"Latitude : {position.latitude}");
+                Console.WriteLine($"Longitude : {position.longitude}\n");
+            }
+            else
+            {
+                Console.WriteLine("Impossible de récupérer les coordonnées.\n");
+            }
         }
 
         public Address() { }
 
-
-        private async Task FetchCoordinates(string address)
+        private async Task FetchCoordinatesORS(string address)
         {
             string encodedAddress = Uri.EscapeDataString(address);
-            string url = $"https://nominatim.openstreetmap.org/search?q={encodedAddress}&format=json";
+            string url = $"https://api.openrouteservice.org/geocode/search?api_key={ApiKeys.ORS_API_KEY}&text={encodedAddress}";
 
-            using (HttpClient client = new HttpClient())
-
+            try
             {
-                // Nominatim demande un User-Agent personnalisé
-                client.DefaultRequestHeaders.Add("User-Agent", "GPS_ServerApp/1.0 (jean@example.com)");
+                // ORS gère les quotas mais on peut rester prudent
+                await Task.Delay(100); // petit délai entre appels si multiples
 
-                try
+                var response = await client.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+                string json = await response.Content.ReadAsStringAsync();
+
+                using (JsonDocument doc = JsonDocument.Parse(json))
                 {
-                    var response = await client.GetAsync(url);
-                    response.EnsureSuccessStatusCode();
-                    string json = await response.Content.ReadAsStringAsync();
+                    var root = doc.RootElement;
 
-                    var results = JsonDocument.Parse(json).RootElement;
-
-                    if (results.GetArrayLength() == 0)
+                    if (root.GetProperty("features").GetArrayLength() == 0)
                     {
                         Console.WriteLine("Adresse non trouvée !");
                         return;
                     }
 
-                    var first = results[0];
-                    double Latitude = double.Parse(first.GetProperty("lat").GetString(), CultureInfo.InvariantCulture); // ON le fait car en fr on a des , et en EN des .
-                    double Longitude = double.Parse(first.GetProperty("lon").GetString(), CultureInfo.InvariantCulture);
+                    var firstFeature = root.GetProperty("features")[0];
+                    var coords = firstFeature.GetProperty("geometry").GetProperty("coordinates");
+
+                    double lon = coords[0].GetDouble();
+                    double lat = coords[1].GetDouble();
+
                     this.position = new Position
                     {
-                        longitude = Longitude,
-                        latitude = Latitude
+                        latitude = lat,
+                        longitude = lon
                     };
                 }
 
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Erreur lors de la récupération des coordonnées : " + ex.Message);
-                }
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine("Erreur HTTP ORS : " + ex.Message);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Erreur lors de la récupération des coordonnées : " + ex.Message);
             }
         }
     }

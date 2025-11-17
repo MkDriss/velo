@@ -15,7 +15,7 @@ import java.util.Scanner;
 public class App {
     public static void main(String[] args) {
         String brokerURL = "tcp://localhost:61616";
-        String queueName = "weather";
+        String queueName = "weatherQueueVelo";
 
         Connection connection = null;
 
