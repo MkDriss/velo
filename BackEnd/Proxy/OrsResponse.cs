@@ -13,11 +13,12 @@ namespace Proxy
     [DataContract]
     public class OrsResponse
     {
-        
-
         [DataMember] public string value;
-        public OrsResponse() {}
-        public OrsResponse(string data) { 
+
+        public OrsResponse() { }
+
+        public OrsResponse(string data)
+        {
             OrsContextDto context = JsonSerializer.Deserialize<OrsContextDto>(data);
             requestOrsResponse(context).Wait();
         }
@@ -25,13 +26,14 @@ namespace Proxy
         async Task requestOrsResponse(OrsContextDto context)
         {
             Thread.Sleep(2000);
+
             string url = $"https://api.openrouteservice.org/v2/directions/{context.Profile}/geojson";
 
             var body = new
             {
                 coordinates = new[]
                 {
-                    new[] { context.StartPosition.Longitude, context.StartPosition.Latitude},
+                    new[] { context.StartPosition.Longitude, context.StartPosition.Latitude },
                     new[] { context.EndPosition.Longitude, context.EndPosition.Latitude }
                 }
             };
@@ -46,9 +48,8 @@ namespace Proxy
             try
             {
                 _httpClient.DefaultRequestHeaders.Clear();
-                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", ApiKeys.ORS_API_KEY); // On fait ça pour skip les verifications qui bloque l'ajout, étrange mais en forcant ça passe
+                _httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", ApiKeys.ORS_API_KEY);
                 _httpClient.Timeout = TimeSpan.FromSeconds(15);
-
             }
             catch (Exception ex)
             {
@@ -59,10 +60,12 @@ namespace Proxy
 
             string responseBody = await response.Content.ReadAsStringAsync();
 
+            Console.WriteLine("[ORS] - Body reçu :");
+            Console.WriteLine(responseBody);
 
             response.EnsureSuccessStatusCode();
 
-            value = await response.Content.ReadAsStringAsync();
+            value = responseBody;
         }
     }
 }

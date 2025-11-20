@@ -1,0 +1,37 @@
+<template>
+    <style>
+        .map-legend {
+            position: absolute;
+            bottom: 140px;
+            left: 25px;
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            z-index: 1000;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        .legend-line {
+            width: 30px;
+            height: 4px;
+            margin-right: 8px;
+        }
+    </style>
+    
+    <div class="map-legend">
+        <div class="legend-item">
+            <span class="legend-line" style="background-color: green;"></span>
+            <span>Velo</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-line" style="background-color: blue;"></span>
+            <span>Marche</span>
+        </div>
+    </div>
+</template>

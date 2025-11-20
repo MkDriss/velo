@@ -248,6 +248,7 @@ class RouteInput extends HTMLElement {
                 this.dispatchRouteEvent('route-display', firstLeg);
                 const secondLeg = await this.fetchWalk(waypoint, end);
                 this.dispatchRouteEvent('route-display', secondLeg);
+
             }
         }
         else{

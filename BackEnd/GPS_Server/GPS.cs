@@ -112,6 +112,15 @@ namespace GPS_Server
             }
         }
 
+        public string GetPelerin()
+        {
+            AddCorsHeaders();
+
+            ORSUtils ORS = new ORSUtils();
+
+            return ORS.getPelerin().RootElement.GetRawText();
+        }
+
         public string GetWalk(string address1, string address2)
         {
             using (var client = new ProxyCacheClient())
@@ -126,6 +135,7 @@ namespace GPS_Server
 
                 ORSUtils ORS = new ORSUtils();
                  
+
 
                 return ORS.getWalkingRoute(start, end).RootElement.GetRawText();
             }

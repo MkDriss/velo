@@ -31,17 +31,24 @@ namespace Proxy
             Console.WriteLine("===== Création d'une adresse =====");
             string[] parts = addressInput.Split(' ');
 
-            string codePostal = parts[parts.Length - 2];
-            string ville = parts[parts.Length - 1];
-            string adresse = string.Join(" ", parts.Take(parts.Length - 2));
+            try
+            {
+                string codePostal = parts[parts.Length - 2];
+                string ville = parts[parts.Length - 1];
+                string adresse = string.Join(" ", parts.Take(parts.Length - 2));
 
-            StreetAddress = adresse;
-            City = ville;
-            PostalCode = int.Parse(codePostal);
+                StreetAddress = adresse;
+                City = ville;
+                PostalCode = int.Parse(codePostal);
 
-            Console.WriteLine($"Adresse : {StreetAddress}");
-            Console.WriteLine($"Code postal : {PostalCode}");
-            Console.WriteLine($"Ville : {City}");
+                Console.WriteLine($"Adresse : {StreetAddress}");
+                Console.WriteLine($"Code postal : {PostalCode}");
+                Console.WriteLine($"Ville : {City}");
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine("Addresse pas format FR");
+            }
 
             // Récupération des coordonnées
             Task.Run(async () => await FetchCoordinatesORS(addressInput)).Wait();

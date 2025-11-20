@@ -31,5 +31,14 @@ namespace GPS_Server
         ResponseFormat = WebMessageFormat.Json)]
         string GetWalk(string address1, string address2);
 
+
+        [OperationContract]
+        [WebGet(
+        UriTemplate = "/getPelerin",
+        ResponseFormat = WebMessageFormat.Json)]
+        string GetPelerin();
+
+
+
     }
 }

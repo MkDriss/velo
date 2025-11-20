@@ -247,6 +247,40 @@ namespace GPS_Server
             return CreateBestRouteJson(itinerary);
         }
 
+        public JsonDocument getPelerin()
+        {
+
+            Console.WriteLine("A");
+
+            // -8.540282 ,42.883508 ],[-0.048645, 43.098392
+            Position Lourdes = new Position
+            {
+                latitude = 43.09717183093698,
+                longitude = -0.0573710103475905
+            };
+
+            Position SaintJacques = new Position
+            {
+                latitude = 42.88049834033071,
+                longitude = -8.545727801730722
+            };
+
+
+            Console.WriteLine("B");
+
+
+            JsonDocument route = getRoute(SaintJacques, Lourdes, "foot-walking");
+
+            Console.WriteLine("C");
+
+            Itinerary itin = new Itinerary(new List<JsonDocument>{route});
+
+            Console.WriteLine("D");
+
+            return CreateBestRouteJson(itin);
+            
+        }
+
         public JsonDocument CreateBestRouteJson(Itinerary itinerary)
         {
             List<JsonElement> ToElements(List<JsonDocument> docs)
