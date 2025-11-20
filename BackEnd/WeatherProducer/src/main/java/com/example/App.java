@@ -34,7 +34,7 @@ public class App {
             String userinput = "";
 
             while (!userinput.equals("0")) {
-                System.out.println("Tape 1 pour 'sun', 2 pour 'cloud', 0 pour quitter : ");
+                System.out.println("Tape 1 pour 'sun', 2 pour 'cloud', '3' pour l'appel de Dieu, 0 pour quitter : ");
                 userinput = scanner.nextLine();
 
                 String payload = null;
@@ -45,6 +45,9 @@ public class App {
                         break;
                     case "2":
                         payload = "cloud";
+                        break;
+                    case "3":
+                        payload = "god";
                         break;
                     case "0":
                         System.out.println("Fermeture...");

@@ -68,6 +68,10 @@ class __WeatherMQ__ extends HTMLElement {
             this.label.textContent = "Pluie";
             this.icon.innerHTML = '<img src="./assets/icons/rain.png" alt="Pluie" style="width: 48px; height: 48px;">';
         }
+        else if(message === "god"){
+            this.label.textContent = "Appel de Dieu"
+            this.icon.innerHTML = '<img src="./assets/icons/god.png" alt="Appel de Dieu" style="width: 48px; height: 48px;">';
+        }
         else{
             this.label.textContent = "...";
             this.icon.innerHTML = '';
