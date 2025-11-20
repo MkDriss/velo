@@ -7,12 +7,11 @@ class RouteInput extends HTMLElement {
             waypoint: null
         };
         this.attachShadow({ mode: 'open' });
-        this.weather = "";
+        this.event = "";
     }
 
-
-    setWeather(message){
-        this.weather = message;
+    setEvent(message){
+        this.event = message;
     }
     
     async connectedCallback() {
@@ -38,16 +37,33 @@ class RouteInput extends HTMLElement {
         this.waypointGroup = this.shadowRoot.getElementById('waypoint-group');
         this.searchButton = this.shadowRoot.getElementById('search-button');
         this.parisianModeCheckbox = this.shadowRoot.getElementById('parisian-mode');
+        this.pilgrimModeCheckbox = this.shadowRoot.getElementById('pilgrim-mode');
         
         // Setup event listeners
         this.setupWaypointToggle();
         this.setupSearchButton();
         this.setupAutocomplete();
+        this.setupModeToggles();
         
         // Close suggestions when clicking outside
         document.addEventListener("click", (e) => {
             if (!this.contains(e.target)) {
                 this.clearAllLists();
+            }
+        });
+    }
+    
+    setupModeToggles() {
+        // Ensure only one mode can be active at a time
+        this.parisianModeCheckbox.addEventListener('change', () => {
+            if (this.parisianModeCheckbox.checked) {
+                this.pilgrimModeCheckbox.checked = false;
+            }
+        });
+        
+        this.pilgrimModeCheckbox.addEventListener('change', () => {
+            if (this.pilgrimModeCheckbox.checked) {
+                this.parisianModeCheckbox.checked = false;
             }
         });
     }
@@ -206,9 +222,10 @@ class RouteInput extends HTMLElement {
         
         const addresses = this.getAllAddresses();
         const parisianMode = this.parisianModeCheckbox.checked;
+        const pilgrimMode = this.pilgrimModeCheckbox.checked;
         
         try {
-            await this.fetchRoute(addresses, parisianMode);            
+            await this.fetchRoute(addresses, parisianMode, pilgrimMode);            
         } catch (error) {
             console.error('Search error:', error);
         } finally {
@@ -234,10 +251,10 @@ class RouteInput extends HTMLElement {
         this.dispatchEvent(event);
     }
 
-    async fetchRoute(addresses, parisianMode) {
+    async fetchRoute(addresses, parisianMode, pilgrimMode) {
         const { start, end, waypoint } = addresses;
 
-        if(this.weather === "cloud"){
+        if(this.event === "cloud"){
             alert("Attention : conditions météorologiques difficiles (pluie). Soyez prudent lors de votre trajet !");
             if(!waypoint){
                 var walk = await this.fetchWalk(start, end);
@@ -248,20 +265,30 @@ class RouteInput extends HTMLElement {
                 this.dispatchRouteEvent('route-display', firstLeg);
                 const secondLeg = await this.fetchWalk(waypoint, end);
                 this.dispatchRouteEvent('route-display', secondLeg);
-
             }
         }
-        else{
-            
+        else if (pilgrimMode || this.event === "god") {
+            // Mode Pèlerin - walking only route
+            var pel = await this.fetchWalk("Saint Jacques de Compostelle", "Boulevard de la Grotte 65100 Lourdes");
+            if (!waypoint) {
+                var walk1 = await this.fetchWalk(start, "Saint Jacques de Compostelle");
+                this.dispatchRouteEvent('route-display', walk1);  
+                this.dispatchRouteEvent('route-display', pel);
+                var walk2 = await this.fetchBike("Boulevard de la Grotte 65100 Lourdes", end);
+                this.dispatchRouteEvent('route-display', walk2);
+            }
+            else{
+                alert("Le mode pèlerin ne supporte pas les étapes intermédiaires.");
+            }
+        }
+        else {
             if (parisianMode) {
                 var toSeine = await this.fetchBikeSeine(start);
                 this.dispatchRouteEvent('route-display', toSeine);
 
-
                 var toEnd = await this.fetchItinerary("Quai de la Seine 75019 Paris", end)
                 this.dispatchRouteEvent('route-display', toEnd);
             }
-            
             else{
                 if (!waypoint) {
                     var itin = await this.fetchItinerary(start, end);
@@ -277,6 +304,17 @@ class RouteInput extends HTMLElement {
         }
     }
 
+    async fetchBike(start, end) {
+        const url = `http://localhost:8701/GPSServer/rest/getBike?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`;
+        console.log("Calling the API with the URL:\n", url);
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+        return await response.json();
+    }
+
     async fetchWalk(start, end) {
         const url = `http://localhost:8701/GPSServer/rest/getWalk?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`;
         console.log("Calling the API with the URL:\n", url);
@@ -287,8 +325,6 @@ class RouteInput extends HTMLElement {
         }
         return await response.json();
     }
-
-
 
     async fetchItinerary(start, end) {
         const url = `http://localhost:8701/GPSServer/rest/getItinerary?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`;
@@ -313,6 +349,17 @@ class RouteInput extends HTMLElement {
         
         return await response.json();
     }
+
+    async fetchPilgrimRoute() {
+        const url = `http://localhost:8701/GPSServer/rest/getPelerin`;
+        console.log("Calling the API with the URL:\n", url);
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+        return await response.json();
+    }
+    
     
     getAllAddresses() {
         const start = this.startInput?.value || '';
@@ -344,9 +391,11 @@ class RouteInput extends HTMLElement {
 
     setParisianMode(val){
         this.parisianModeCheckbox.checked = val;
-
     }
 
+    setPilgrimMode(val){
+        this.pilgrimModeCheckbox.checked = val;
+    }
 }
 
 customElements.define('route-input', RouteInput);

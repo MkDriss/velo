@@ -59,10 +59,6 @@ namespace Proxy
             HttpResponseMessage response = await _httpClient.PostAsync(url, content).ConfigureAwait(false);
 
             string responseBody = await response.Content.ReadAsStringAsync();
-
-            Console.WriteLine("[ORS] - Body reçu :");
-            Console.WriteLine(responseBody);
-
             response.EnsureSuccessStatusCode();
 
             value = responseBody;

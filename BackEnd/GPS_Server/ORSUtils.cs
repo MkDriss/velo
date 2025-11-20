@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Proxy;
+using System.CodeDom;
 
 namespace GPS_Server
 {
@@ -27,15 +28,12 @@ namespace GPS_Server
         public async Task<JsonDocument> computeComplexItinerary(List<Station> allStations, Position startPos, Position endPos)
         {
             Itinerary itinerary = new Itinerary();
-            Console.WriteLine("JE SUI HERE");
 
             JsonDocument walkGlobalRoute = getRoute(startPos, endPos, "foot-walking");
             Itinerary walkItinerary = new Itinerary(new List<JsonDocument> { walkGlobalRoute });
 
-            Console.WriteLine($"TEMPS PIETON --- {walkItinerary.getDuration()}");
 
             await recursiveItinerary(startPos, endPos, itinerary, allStations);
-            Console.WriteLine($"TEMPS GPS: ---- {itinerary.getDuration()}");
             return CreateBestRouteJson(itinerary);          
         }
 
@@ -134,6 +132,15 @@ namespace GPS_Server
             Itinerary final = new Itinerary(new List<JsonDocument> { getRoute(start.position, end.position, "foot-walking") });
             return CreateBestRouteJson(final);
         }
+
+        public JsonDocument getBikingRoute(Address start, Address end)
+        {
+            JsonDocument itin = getRoute(start.position, end.position, "cycling-regular");
+            Itinerary final = new Itinerary();
+            final.addBikePath(itin);
+            return CreateBestRouteJson(final);
+        }
+
 
 
         public JsonDocument computeThrowBikeSeine(List<Station> allStations, Position startPos)
@@ -247,39 +254,7 @@ namespace GPS_Server
             return CreateBestRouteJson(itinerary);
         }
 
-        public JsonDocument getPelerin()
-        {
-
-            Console.WriteLine("A");
-
-            // -8.540282 ,42.883508 ],[-0.048645, 43.098392
-            Position Lourdes = new Position
-            {
-                latitude = 43.09717183093698,
-                longitude = -0.0573710103475905
-            };
-
-            Position SaintJacques = new Position
-            {
-                latitude = 42.88049834033071,
-                longitude = -8.545727801730722
-            };
-
-
-            Console.WriteLine("B");
-
-
-            JsonDocument route = getRoute(SaintJacques, Lourdes, "foot-walking");
-
-            Console.WriteLine("C");
-
-            Itinerary itin = new Itinerary(new List<JsonDocument>{route});
-
-            Console.WriteLine("D");
-
-            return CreateBestRouteJson(itin);
-            
-        }
+        
 
         public JsonDocument CreateBestRouteJson(Itinerary itinerary)
         {

@@ -34,10 +34,9 @@ namespace GPS_Server
 
         [OperationContract]
         [WebGet(
-        UriTemplate = "/getPelerin",
+        UriTemplate = "/getBike?start={address1}&end={address2}",
         ResponseFormat = WebMessageFormat.Json)]
-        string GetPelerin();
-
+        string GetBike(string address1, string address2);
 
 
     }

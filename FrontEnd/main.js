@@ -22,13 +22,15 @@ sideBar.addEventListener('test-run', (e) => {
             routeInput.setAddresses('2 Rue Job 31000 Toulouse', "Rue du Rouergue 31100 Toulouse")
             routeInput.setParisianMode(false);
 
-            break;        
+            break;   
+        case 'test-pel':
+            routeInput.setAddresses('2 Rue Judaïque 33000 Bordeaux', '22 Boulevard georges guynemer 13009 Marseille');     
     }
 });
 
-weatherMQ.addEventListener('weather-message', (e) => {
+weatherMQ.addEventListener('eventMQ', (e) => {
     console.log("Nouveau message météo reçu dans main.js :", e.detail.body);
-    routeInput.setWeather(e.detail.body);
+    routeInput.setEvent(e.detail.body);
 });
 
 

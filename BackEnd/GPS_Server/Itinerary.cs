@@ -37,6 +37,11 @@ namespace GPS_Server
             this.pedestrianPath = this.pedestrianPath.Concat(it2.pedestrianPath).ToList();
         }
 
+        public void addBikePath(JsonDocument json)
+        {
+            this.bikingPath.Add(json);
+        }
+
         public double getDuration()
         {
             double total = 0;

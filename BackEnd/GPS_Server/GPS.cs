@@ -112,15 +112,26 @@ namespace GPS_Server
             }
         }
 
-        public string GetPelerin()
+
+        public string GetBike(string address1, string address2)
         {
-            AddCorsHeaders();
+            using (var client = new ProxyCacheClient())
+            {
+                AddCorsHeaders();
 
-            ORSUtils ORS = new ORSUtils();
+                Console.WriteLine($"[GPS] - Itinéraire à vélo entre : {address1} et {address2}");
+                Stations stations = JCDecauxUtils.getAllStations();
 
-            return ORS.getPelerin().RootElement.GetRawText();
+                Address start = client.GetAddressCoordinates(address1);
+                Address end = client.GetAddressCoordinates(address2);
+
+                ORSUtils ORS = new ORSUtils();
+
+
+                return ORS.getBikingRoute(start, end).RootElement.GetRawText();
+            }
+
         }
-
         public string GetWalk(string address1, string address2)
         {
             using (var client = new ProxyCacheClient())

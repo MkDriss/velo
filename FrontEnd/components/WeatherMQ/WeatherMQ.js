@@ -43,9 +43,9 @@ class __WeatherMQ__ extends HTMLElement {
                 console.log(`[WeatherMQ] Connecté à ActiveMQ — Queue: ${this.queue}`);
                 this.client.subscribe(`/queue/${this.queue}`, (msg) => {
                     console.log("[WeatherMQ] Message reçu :", msg.body);
-                    this.updateWeather(msg.body);
+                    this.updateEvent(msg.body);
                     this.message = msg.body;                    
-                    this.dispatchEvent(new CustomEvent('weather-message', {
+                    this.dispatchEvent(new CustomEvent('eventMQ', {
                         detail: { body: msg.body },
                         bubbles: true,
                         composed: true
@@ -59,7 +59,7 @@ class __WeatherMQ__ extends HTMLElement {
         this.client.activate();
     }
     
-    updateWeather(message) {
+    updateEvent(message) {
         if(message === "sun"){
             this.label.textContent = "Soleil";
             this.icon.innerHTML = '<img src="./assets/icons/sun.png" alt="Soleil" style="width: 48px; height: 48px;">';
