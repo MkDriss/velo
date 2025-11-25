@@ -1,60 +1,57 @@
+import { AutocompleteManager } from '../RouteInput/autoCompleteManager.js';
+import { RouteService } from '../RouteInput/routeService.js';
+import { EventDispatcher } from '../RouteInput/eventDispatcher.js';
+
 class RouteInput extends HTMLElement {
     constructor() {
         super();
-        this.debounceTimers = {
-            start: null,
-            end: null,
-            waypoint: null
-        };
         this.attachShadow({ mode: 'open' });
         this.event = "";
+        
+        // Initialize managers
+        this.autocompleteManager = new AutocompleteManager(this.shadowRoot);
+        this.routeService = new RouteService();
+        this.eventDispatcher = new EventDispatcher(this);
     }
 
-    setEvent(message){
+    setEvent(message) {
         this.event = message;
     }
     
     async connectedCallback() {
+        await this.loadTemplate();
+        this.initializeElements();
+        this.setupEventListeners();
+    }
+
+    async loadTemplate() {
         const response = await fetch("./components/RouteInput/RouteInput.html");
         const content = await response.text();
         const templateContent = new DOMParser()
             .parseFromString(content, "text/html")
             .querySelector("template").content;
         this.shadowRoot.appendChild(templateContent.cloneNode(true));
-        
-        // Get input elements
+    }
+
+    initializeElements() {
         this.startInput = this.shadowRoot.getElementById('start');
         this.endInput = this.shadowRoot.getElementById('end');
         this.waypointInput = this.shadowRoot.getElementById('waypoint');
-        
-        // Get or create suggestion lists
-        this.startList = this.shadowRoot.getElementById('start-suggestions') || this.createSuggestionList('start');
-        this.endList = this.shadowRoot.getElementById('end-suggestions') || this.createSuggestionList('end');
-        this.waypointList = this.shadowRoot.getElementById('waypoint-suggestions') || this.createSuggestionList('waypoint');
-        
-        // Get other elements
         this.addWaypointButton = this.shadowRoot.getElementById('add-waypoint');
         this.waypointGroup = this.shadowRoot.getElementById('waypoint-group');
         this.searchButton = this.shadowRoot.getElementById('search-button');
         this.parisianModeCheckbox = this.shadowRoot.getElementById('parisian-mode');
         this.pilgrimModeCheckbox = this.shadowRoot.getElementById('pilgrim-mode');
-        
-        // Setup event listeners
+    }
+
+    setupEventListeners() {
+        this.autocompleteManager.setup(this.startInput, this.endInput, this.waypointInput);
         this.setupWaypointToggle();
         this.setupSearchButton();
-        this.setupAutocomplete();
         this.setupModeToggles();
-        
-        // Close suggestions when clicking outside
-        document.addEventListener("click", (e) => {
-            if (!this.contains(e.target)) {
-                this.clearAllLists();
-            }
-        });
     }
-    
+
     setupModeToggles() {
-        // Ensure only one mode can be active at a time
         this.parisianModeCheckbox.addEventListener('change', () => {
             if (this.parisianModeCheckbox.checked) {
                 this.pilgrimModeCheckbox.checked = false;
@@ -67,129 +64,7 @@ class RouteInput extends HTMLElement {
             }
         });
     }
-    
-    createSuggestionList(inputId) {
-        const ul = document.createElement('ul');
-        ul.id = `${inputId}-suggestions`;
-        ul.className = 'suggestions';
-        ul.style.display = 'none';
-        
-        // Find the input and insert the list after it
-        const input = this.shadowRoot.getElementById(inputId);
-        if (input && input.parentElement) {
-            input.parentElement.style.position = 'relative';
-            input.parentElement.appendChild(ul);
-        }
-        
-        return ul;
-    }
-    
-    setupAutocomplete() {
-        // Setup autocomplete for start input
-        this.startInput.addEventListener("input", (e) => {
-            const value = e.target.value.trim();
-            if (value === "") {
-                this.clearList(this.startList);
-                return;
-            }
-            this.debounceSearch('start', value);
-        });
-        
-        // Setup autocomplete for end input
-        this.endInput.addEventListener("input", (e) => {
-            const value = e.target.value.trim();
-            if (value === "") {
-                this.clearList(this.endList);
-                return;
-            }
-            this.debounceSearch('end', value);
-        });
-        
-        // Setup autocomplete for waypoint input
-        this.waypointInput.addEventListener("input", (e) => {
-            const value = e.target.value.trim();
-            if (value === "") {
-                this.clearList(this.waypointList);
-                return;
-            }
-            this.debounceSearch('waypoint', value);
-        });
-    }
-    
-    debounceSearch(inputType, value) {
-        clearTimeout(this.debounceTimers[inputType]);
-        this.debounceTimers[inputType] = setTimeout(() => {
-            this.fetchSuggestions(inputType, value);
-        }, 500);
-    }
-    
-    async fetchSuggestions(inputType, query) {
-        try {
-            const res = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=5`);
-            const data = await res.json();
-            const values = data.features;
-            
-            let listElement, inputElement;
-            switch(inputType) {
-                case 'start':
-                    listElement = this.startList;
-                    inputElement = this.startInput;
-                    break;
-                case 'end':
-                    listElement = this.endList;
-                    inputElement = this.endInput;
-                    break;
-                case 'waypoint':
-                    listElement = this.waypointList;
-                    inputElement = this.waypointInput;
-                    break;
-            }
-            
-            this.renderList(listElement, inputElement, values);
-        } catch (err) {
-            console.error('Error fetching suggestions:', err);
-        }
-    }
-    
-    renderList(listElement, inputElement, values) {
-        if (!listElement) return;
-        
-        listElement.innerHTML = "";
-        
-        if (values.length === 0) {
-            listElement.style.display = 'none';
-            return;
-        }
-        
-        values.forEach((element) => {
-            const li = document.createElement("li");
-            li.textContent = element.properties.label;
-            li.className = 'suggestion-item';
-            
-            li.addEventListener("click", () => {
-                inputElement.value = element.properties.label;
-                this.clearList(listElement);
-            });
-            
-            listElement.appendChild(li);
-        });
-        
-        listElement.style.display = 'block';
-    }
-    
-    clearList(listElement) {
-        if (listElement) {
-            listElement.innerHTML = "";
-            listElement.style.display = 'none';
-        }
-    }
-    
-    clearAllLists() {
-        this.clearList(this.startList);
-        this.clearList(this.endList);
-        this.clearList(this.waypointList);
-    }
-    
+
     setupWaypointToggle() {
         if (this.addWaypointButton) {
             this.addWaypointButton.addEventListener("click", () => {
@@ -202,12 +77,12 @@ class RouteInput extends HTMLElement {
                     this.addWaypointButton.textContent = '+ Ajouter une étape';
                     this.addWaypointButton.style.background = '#f5f5f5';
                     this.waypointInput.value = '';
-                    this.clearList(this.waypointList);
+                    this.autocompleteManager.clearList(this.autocompleteManager.waypointList);
                 }
             });
         }
     }
-    
+
     setupSearchButton() {
         if (this.searchButton) {
             this.searchButton.addEventListener("click", () => {
@@ -215,17 +90,17 @@ class RouteInput extends HTMLElement {
             });
         }
     }
-    
+
     async handleSearch() {
         this.setLoadingState(true);
-        this.dispatchRouteEvent('search-btn-pressed', "");
+        this.eventDispatcher.dispatchRouteEvent('search-btn-pressed', "");
         
         const addresses = this.getAllAddresses();
         const parisianMode = this.parisianModeCheckbox.checked;
         const pilgrimMode = this.pilgrimModeCheckbox.checked;
         
         try {
-            await this.fetchRoute(addresses, parisianMode, pilgrimMode);            
+            await this.fetchRoute(addresses, parisianMode, pilgrimMode);
         } catch (error) {
             console.error('Search error:', error);
         } finally {
@@ -242,152 +117,92 @@ class RouteInput extends HTMLElement {
         this.searchButton.disabled = isLoading;
     }
 
-    dispatchRouteEvent(eventName, data) {
-        const event = new CustomEvent(eventName, {
-            detail: data,
-            bubbles: true,
-            composed: true
-        });
-        this.dispatchEvent(event);
-    }
-
     async fetchRoute(addresses, parisianMode, pilgrimMode) {
-    const { start, end, waypoint } = addresses;
-    
-    if(this.event === "cloud"){
+        const { start, end, waypoint } = addresses;
+        
+        if (this.event === "cloud") {
+            await this.handleCloudMode(start, end, waypoint);
+        } else if (pilgrimMode || this.event === "god") {
+            await this.handlePilgrimMode(start, end, waypoint);
+        } else if (parisianMode) {
+            await this.handleParisianMode(start, end);
+        } else {
+            await this.handleNormalMode(start, end, waypoint);
+        }
+    }
+
+    async handleCloudMode(start, end, waypoint) {
         alert("Attention : conditions météorologiques difficiles (pluie). Soyez prudent lors de votre trajet !");
-        if(!waypoint){
-            var walk = await this.fetchWalk(start, end);
-            this.dispatchRouteEvent('route-display', walk);
-            this.dispatchEvent(new CustomEvent('load-marker', { detail: { geoJson: walk, mode: "departure" } }));
-            this.dispatchEvent(new CustomEvent('load-marker', { detail: { geoJson: walk, mode: "arrival" } }));
-        }
-        else{
-            const firstLeg = await this.fetchWalk(start, waypoint);
-            this.dispatchRouteEvent('route-display', firstLeg);
-            this.dispatchEvent(new CustomEvent('load-marker', { detail: { geoJson: firstLeg, mode: "departure" } }));
-            
-            const secondLeg = await this.fetchWalk(waypoint, end);
-            this.dispatchRouteEvent('route-display', secondLeg);
-            this.dispatchEvent(new CustomEvent('load-marker', { detail: { geoJson: secondLeg, mode: "arrival" } }));
-        }
-    }
-    else if (pilgrimMode || this.event === "god") {
-        // Mode Pèlerin - walking only route
-        var pel = await this.fetchWalk("Saint Jacques de Compostelle", "Boulevard de la Grotte 65100 Lourdes");
+        
         if (!waypoint) {
-            var walk1 = await this.fetchWalk(start, "Saint Jacques de Compostelle");
-            this.dispatchRouteEvent('route-display', walk1);  
-            this.dispatchEvent(new CustomEvent('load-marker', { detail: { geoJson: walk1, mode: "departure" } }));
+            const walk = await this.routeService.fetchWalk(start, end);
+            this.eventDispatcher.dispatchRouteEvent('route-display', walk);
+            this.eventDispatcher.dispatchMarkerEvent(walk, "departure");
+            this.eventDispatcher.dispatchMarkerEvent(walk, "arrival");
+        } else {
+            const firstLeg = await this.routeService.fetchWalk(start, waypoint);
+            this.eventDispatcher.dispatchRouteEvent('route-display', firstLeg);
+            this.eventDispatcher.dispatchMarkerEvent(firstLeg, "departure");
             
-            this.dispatchRouteEvent('route-display', pel);
-            
-            var walk2 = await this.fetchBike("Boulevard de la Grotte 65100 Lourdes", end);
-            this.dispatchRouteEvent('route-display', walk2);
-            this.dispatchEvent(new CustomEvent('load-marker', { detail: { geoJson: walk2, mode: "arrival" } }));
+            const secondLeg = await this.routeService.fetchWalk(waypoint, end);
+            this.eventDispatcher.dispatchRouteEvent('route-display', secondLeg);
+            this.eventDispatcher.dispatchMarkerEvent(secondLeg, "arrival");
         }
-        else{
+    }
+
+    async handlePilgrimMode(start, end, waypoint) {
+        if (waypoint) {
             alert("Le mode pèlerin ne supporte pas les étapes intermédiaires.");
+            return;
         }
+
+        const walk1 = await this.routeService.fetchWalk(start, "Saint Jacques de Compostelle");
+        this.eventDispatcher.dispatchRouteEvent('route-display', walk1);
+        this.eventDispatcher.dispatchMarkerEvent(walk1, "departure");
+        
+        const pel = await this.routeService.fetchWalk("Saint Jacques de Compostelle", "Boulevard de la Grotte 65100 Lourdes");
+        this.eventDispatcher.dispatchRouteEvent('route-display', pel);
+        
+        const walk2 = await this.routeService.fetchBike("Boulevard de la Grotte 65100 Lourdes", end);
+        this.eventDispatcher.dispatchRouteEvent('route-display', walk2);
+        this.eventDispatcher.dispatchMarkerEvent(walk2, "arrival");
     }
-    else {
-        if (parisianMode) {
-            var toSeine = await this.fetchBikeSeine(start);
-            this.dispatchRouteEvent('route-display', toSeine);
-            this.dispatchEvent(new CustomEvent('load-marker', { detail: { geoJson: toSeine, mode: "departure" } }));
+
+    async handleParisianMode(start, end) {
+        const toSeine = await this.routeService.fetchBikeSeine(start);
+        this.eventDispatcher.dispatchRouteEvent('route-display', toSeine);
+        this.eventDispatcher.dispatchMarkerEvent(toSeine, "departure");
+        
+        const toEnd = await this.routeService.fetchItinerary("Quai de la Seine 75019 Paris", end);
+        this.eventDispatcher.dispatchRouteEvent('route-display', toEnd);
+        this.eventDispatcher.dispatchMarkerEvent(toEnd, "arrival");
+    }
+
+    async handleNormalMode(start, end, waypoint) {
+        if (!waypoint) {
+            const itin = await this.routeService.fetchItinerary(start, end);
+            this.eventDispatcher.dispatchRouteEvent('route-display', itin);
+            this.eventDispatcher.dispatchMarkerEvent(itin, "departure");
+            this.eventDispatcher.dispatchMarkerEvent(itin, "arrival");
+        } else {
+            const firstLeg = await this.routeService.fetchItinerary(start, waypoint);
+            this.eventDispatcher.dispatchRouteEvent('route-display', firstLeg);
+            this.eventDispatcher.dispatchMarkerEvent(firstLeg, "departure");
             
-            var toEnd = await this.fetchItinerary("Quai de la Seine 75019 Paris", end);
-            this.dispatchRouteEvent('route-display', toEnd);
-            this.dispatchEvent(new CustomEvent('load-marker', { detail: { geoJson: toEnd, mode: "arrival" } }));
+            const secondLeg = await this.routeService.fetchItinerary(waypoint, end);
+            this.eventDispatcher.dispatchRouteEvent('route-display', secondLeg);
+            this.eventDispatcher.dispatchMarkerEvent(secondLeg, "arrival");
         }
-        else{
-            if (!waypoint) {
-                var itin = await this.fetchItinerary(start, end);
-                this.dispatchRouteEvent('route-display', itin);
-                this.dispatchEvent(new CustomEvent('load-marker', { detail: { geoJson: itin, mode: "departure" } }));
-                this.dispatchEvent(new CustomEvent('load-marker', { detail: { geoJson: itin, mode: "arrival" } }));
-            } else {
-                const firstLeg = await this.fetchItinerary(start, waypoint);
-                this.dispatchRouteEvent('route-display', firstLeg);
-                this.dispatchEvent(new CustomEvent('load-marker', { detail: { geoJson: firstLeg, mode: "departure" } }));
-                
-                const secondLeg = await this.fetchItinerary(waypoint, end);
-                this.dispatchRouteEvent('route-display', secondLeg);
-                this.dispatchEvent(new CustomEvent('load-marker', { detail: { geoJson: secondLeg, mode: "arrival" } }));
-            }
-        }
-    }
-}
-
-    async fetchBike(start, end) {
-        const url = `http://localhost:8701/GPSServer/rest/getBike?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`;
-        console.log("Calling the API with the URL:\n", url);
-        
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Erreur HTTP: ${response.status}`);
-        }
-        return await response.json();
     }
 
-    async fetchWalk(start, end) {
-        const url = `http://localhost:8701/GPSServer/rest/getWalk?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`;
-        console.log("Calling the API with the URL:\n", url);
-        
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Erreur HTTP: ${response.status}`);
-        }
-        return await response.json();
-    }
-
-    async fetchItinerary(start, end) {
-        const url = `http://localhost:8701/GPSServer/rest/getItinerary?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`;
-        console.log("Calling the API with the URL:\n", url);
-        
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Erreur HTTP: ${response.status}`);
-        }
-        
-        return await response.json();
-    }
-
-    async fetchBikeSeine(departure) {
-        const url = `http://localhost:8701/GPSServer/rest/ThrowBikeSeine?start=${encodeURIComponent(departure)}`;
-        console.log("Calling the API with the URL:\n", url);
-        
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Erreur HTTP: ${response.status}`);
-        }
-        
-        return await response.json();
-    }
-
-    async fetchPilgrimRoute() {
-        const url = `http://localhost:8701/GPSServer/rest/getPelerin`;
-        console.log("Calling the API with the URL:\n", url);
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Erreur HTTP: ${response.status}`);
-        }
-        return await response.json();
-    }
-    
-    
     getAllAddresses() {
-        const start = this.startInput?.value || '';
-        const end = this.endInput?.value || '';
-        const waypoint = this.waypointInput?.value || '';
-        
         return {
-            start: start,
-            waypoint: waypoint || null,
-            end: end
+            start: this.startInput?.value || '',
+            waypoint: this.waypointInput?.value || null,
+            end: this.endInput?.value || ''
         };
     }
-    
+
     setAddresses(start, end, waypoint = null) {
         this.startInput.value = start;
         this.endInput.value = end;
@@ -404,15 +219,15 @@ class RouteInput extends HTMLElement {
         }
     }
 
-    setParisianMode(val){
+    setParisianMode(val) {
         this.parisianModeCheckbox.checked = val;
     }
 
-    setPilgrimMode(val){
+    setPilgrimMode(val) {
         this.pilgrimModeCheckbox.checked = val;
     }
 
-    istPilgrimModeActived(){
+    istPilgrimModeActived() {
         return this.pilgrimModeCheckbox.checked;
     }
 }
