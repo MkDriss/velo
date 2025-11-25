@@ -55,6 +55,36 @@ class __MapComponent__ extends HTMLElement {
         this.routesLayer.clearLayers();
     }
     
+addMarker(coords, label, color = 'blue') {
+    if (!this.map || !coords) return;
+    
+    // Les coordonnées GeoJSON sont [longitude, latitude]
+    // Leaflet attend [latitude, longitude]
+    const latLng = [coords[1], coords[0]];
+    
+    // Créer une icône personnalisée avec la couleur
+    const icon = L.divIcon({
+        className: 'custom-marker',
+        html: `<div style="
+            background-color: ${color};
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        "></div>`,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
+        popupAnchor: [0, -12]
+    });
+    
+    const marker = L.marker(latLng, { icon })
+        .bindPopup(label)
+        .addTo(this.routesLayer);
+    
+    return marker;
+}
+    
     async loadLeaflet() {
         if (!window.L) {
             if (!document.getElementById('leaflet-css')) {
@@ -72,5 +102,6 @@ class __MapComponent__ extends HTMLElement {
             });
         }
     }
-}
+} // FIN DE LA CLASSE
+
 customElements.define('map-custom', __MapComponent__);

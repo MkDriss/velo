@@ -252,57 +252,72 @@ class RouteInput extends HTMLElement {
     }
 
     async fetchRoute(addresses, parisianMode, pilgrimMode) {
-        const { start, end, waypoint } = addresses;
-
-        if(this.event === "cloud"){
-            alert("Attention : conditions météorologiques difficiles (pluie). Soyez prudent lors de votre trajet !");
-            if(!waypoint){
-                var walk = await this.fetchWalk(start, end);
-                this.dispatchRouteEvent('route-display', walk);
-            }
-            else{
-                const firstLeg = await this.fetchWalk(start, waypoint);
-                this.dispatchRouteEvent('route-display', firstLeg);
-                const secondLeg = await this.fetchWalk(waypoint, end);
-                this.dispatchRouteEvent('route-display', secondLeg);
-            }
+    const { start, end, waypoint } = addresses;
+    
+    if(this.event === "cloud"){
+        alert("Attention : conditions météorologiques difficiles (pluie). Soyez prudent lors de votre trajet !");
+        if(!waypoint){
+            var walk = await this.fetchWalk(start, end);
+            this.dispatchRouteEvent('route-display', walk);
+            this.dispatchEvent(new CustomEvent('load-marker', { detail: { geoJson: walk, mode: "departure" } }));
+            this.dispatchEvent(new CustomEvent('load-marker', { detail: { geoJson: walk, mode: "arrival" } }));
         }
-        else if (pilgrimMode || this.event === "god") {
-            // Mode Pèlerin - walking only route
-            var pel = await this.fetchWalk("Saint Jacques de Compostelle", "Boulevard de la Grotte 65100 Lourdes");
+        else{
+            const firstLeg = await this.fetchWalk(start, waypoint);
+            this.dispatchRouteEvent('route-display', firstLeg);
+            this.dispatchEvent(new CustomEvent('load-marker', { detail: { geoJson: firstLeg, mode: "departure" } }));
+            
+            const secondLeg = await this.fetchWalk(waypoint, end);
+            this.dispatchRouteEvent('route-display', secondLeg);
+            this.dispatchEvent(new CustomEvent('load-marker', { detail: { geoJson: secondLeg, mode: "arrival" } }));
+        }
+    }
+    else if (pilgrimMode || this.event === "god") {
+        // Mode Pèlerin - walking only route
+        var pel = await this.fetchWalk("Saint Jacques de Compostelle", "Boulevard de la Grotte 65100 Lourdes");
+        if (!waypoint) {
+            var walk1 = await this.fetchWalk(start, "Saint Jacques de Compostelle");
+            this.dispatchRouteEvent('route-display', walk1);  
+            this.dispatchEvent(new CustomEvent('load-marker', { detail: { geoJson: walk1, mode: "departure" } }));
+            
+            this.dispatchRouteEvent('route-display', pel);
+            
+            var walk2 = await this.fetchBike("Boulevard de la Grotte 65100 Lourdes", end);
+            this.dispatchRouteEvent('route-display', walk2);
+            this.dispatchEvent(new CustomEvent('load-marker', { detail: { geoJson: walk2, mode: "arrival" } }));
+        }
+        else{
+            alert("Le mode pèlerin ne supporte pas les étapes intermédiaires.");
+        }
+    }
+    else {
+        if (parisianMode) {
+            var toSeine = await this.fetchBikeSeine(start);
+            this.dispatchRouteEvent('route-display', toSeine);
+            this.dispatchEvent(new CustomEvent('load-marker', { detail: { geoJson: toSeine, mode: "departure" } }));
+            
+            var toEnd = await this.fetchItinerary("Quai de la Seine 75019 Paris", end);
+            this.dispatchRouteEvent('route-display', toEnd);
+            this.dispatchEvent(new CustomEvent('load-marker', { detail: { geoJson: toEnd, mode: "arrival" } }));
+        }
+        else{
             if (!waypoint) {
-                var walk1 = await this.fetchWalk(start, "Saint Jacques de Compostelle");
-                this.dispatchRouteEvent('route-display', walk1);  
-                this.dispatchRouteEvent('route-display', pel);
-                var walk2 = await this.fetchBike("Boulevard de la Grotte 65100 Lourdes", end);
-                this.dispatchRouteEvent('route-display', walk2);
-            }
-            else{
-                alert("Le mode pèlerin ne supporte pas les étapes intermédiaires.");
-            }
-        }
-        else {
-            if (parisianMode) {
-                var toSeine = await this.fetchBikeSeine(start);
-                this.dispatchRouteEvent('route-display', toSeine);
-
-                var toEnd = await this.fetchItinerary("Quai de la Seine 75019 Paris", end)
-                this.dispatchRouteEvent('route-display', toEnd);
-            }
-            else{
-                if (!waypoint) {
-                    var itin = await this.fetchItinerary(start, end);
-                    this.dispatchRouteEvent('route-display', itin);
-                } else {
-                    const firstLeg = await this.fetchItinerary(start, waypoint);
-                    this.dispatchRouteEvent('route-display', firstLeg);
-                                    
-                    const secondLeg = await this.fetchItinerary(waypoint, end);
-                    this.dispatchRouteEvent('route-display', secondLeg);
-                }
+                var itin = await this.fetchItinerary(start, end);
+                this.dispatchRouteEvent('route-display', itin);
+                this.dispatchEvent(new CustomEvent('load-marker', { detail: { geoJson: itin, mode: "departure" } }));
+                this.dispatchEvent(new CustomEvent('load-marker', { detail: { geoJson: itin, mode: "arrival" } }));
+            } else {
+                const firstLeg = await this.fetchItinerary(start, waypoint);
+                this.dispatchRouteEvent('route-display', firstLeg);
+                this.dispatchEvent(new CustomEvent('load-marker', { detail: { geoJson: firstLeg, mode: "departure" } }));
+                
+                const secondLeg = await this.fetchItinerary(waypoint, end);
+                this.dispatchRouteEvent('route-display', secondLeg);
+                this.dispatchEvent(new CustomEvent('load-marker', { detail: { geoJson: secondLeg, mode: "arrival" } }));
             }
         }
     }
+}
 
     async fetchBike(start, end) {
         const url = `http://localhost:8701/GPSServer/rest/getBike?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`;
@@ -395,6 +410,10 @@ class RouteInput extends HTMLElement {
 
     setPilgrimMode(val){
         this.pilgrimModeCheckbox.checked = val;
+    }
+
+    istPilgrimModeActived(){
+        return this.pilgrimModeCheckbox.checked;
     }
 }
 
